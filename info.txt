@@ -1,3 +1,6 @@
 THis file is small version of all the various general code changes that can be committed.
 
 Added text after the second time on the go
+
+
+final text binding Demo project
