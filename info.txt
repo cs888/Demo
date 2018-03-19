@@ -3,4 +3,8 @@ THis file is small version of all the various general code changes that can be c
 Added text after the second time on the go
 
 
+
+this line will only have in new repo project
+
 final text binding Demo project
+
