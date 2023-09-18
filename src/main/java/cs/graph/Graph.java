@@ -1261,7 +1261,7 @@ public class Graph {
                     queue.add(v);
                 }
         }
-        //return distance storead at last index
+        //return distance stored at last index
         return dist[k - 1];
     }
 

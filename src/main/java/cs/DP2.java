@@ -832,7 +832,7 @@ public class DP {
         return d[i] = mincost;
     }
 
-    private static boolean isPallindrome(int i, int j, char[] c) {
+     public static boolean isPallindrome(int i, int j, char[] c) {
         while (i < j) {
             if (c[i] != c[j]) return false;
             i++;
