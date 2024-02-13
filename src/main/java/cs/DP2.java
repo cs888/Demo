@@ -2,26 +2,9 @@ package cs;
 
 import java.util.*;
 
-public class DP {
+public class DP2 {
     public static void main(String[] args) {
-        String s1 = "brute";
-        String t1 = "groot";
-        List<Integer> temp = new ArrayList<>();
-        List<List<Integer>> ans = new ArrayList<>();
 
-        int orig_cuts[] = {7, 1, 8};
-        // Arrays.sort(orig_cuts);
-        int[] cuts = new int[orig_cuts.length + 2];
-        System.arraycopy(orig_cuts, 0, cuts, 1, orig_cuts.length);
-        //assign last element to stick lenth
-        cuts[0] = 1;
-        cuts[cuts.length - 1] = 1;
-        int[][] dp = new int[cuts.length][cuts.length];
-        char[] a = "F|T^F".toCharArray();
-        String s = "APPLE";
-        int hi[] = {2, 1, 5, 6, 2, 3, 1};
-        int i = histogramAreaMaxOptimized(hi);
-        System.out.println(i);
     }
 
     private static int histogramAreaMaxOptimized(int[] a) {
@@ -105,172 +88,6 @@ public class DP {
         return hi.length - 1;
     }
 
-    private static int partitionArrayMaxSum(int i, int[] chars, int k) {
-        if (i == chars.length) return 0;
-        int maxSum = Integer.MIN_VALUE;
-        int len = 0;
-        int maxi = Integer.MIN_VALUE;
-        for (int j = i; j < Math.min(j + k, chars.length); j++) {
-            len++;
-            maxi = Math.max(maxi, chars[j]);
-            int jCut = len * maxi + partitionArrayMaxSum(j + 1, chars, k);
-            maxSum = Math.max(maxSum, jCut);
-        }
-        return maxSum;
-    }
-
-    private static int pallindromePartitionMinCut(int i, char[] chars) {
-        if (i == chars.length) return 0;
-        int minCut = Integer.MAX_VALUE;
-        for (int j = i; j < chars.length; j++) {
-            if (isPallindrome(i, j, chars)) {
-                int jCut = 1 + pallindromePartitionMinCut(j + 1, chars);
-                minCut = Math.min(minCut, jCut);
-            }
-        }
-        //-1 to ignore last cutp
-        return minCut - 1;
-    }
-
-    private static int evaluateToTrue(int i, int j, char[] a, int requireTrue) {
-        if (i > j) return 0;
-        if (i == j) {
-            if (requireTrue == 1) return a[i] == 'T' ? 1 : 0;
-                //false
-            else return a[i] == 'F' ? 1 : 0;
-        }
-
-        int count = 0;
-        for (int ind = i + 1; ind <= j - 1; ind += 2) {
-
-            int lt = evaluateToTrue(i, ind - 1, a, 1);
-            int lf = evaluateToTrue(i, ind - 1, a, 0);
-            int rt = evaluateToTrue(ind + 1, j, a, 1);
-            int rf = evaluateToTrue(ind + 1, j, a, 0);
-            if (a[ind] == '&') {
-                if (requireTrue == 1) count += (lt & rt);
-                else count += (lt * rf) + (rt * lf) + (lf * rf);
-            } else if (a[ind] == '|') {
-                if (requireTrue == 1) count += (lt * rf) + (rt * lf) + (lt * rt);
-                else count += (lf * rf);
-            } else if (a[ind] == '^') {
-                if (requireTrue == 1) count += (lt * rf) + (rt * lf);
-                else count += (lt * rt) + (lf * rf);
-            }
-        }
-
-        return count;
-    }
-
-    private static int burstBallonBottomUP(int ii, int n, int[] cuts) {
-        int[][] dp = new int[cuts.length][cuts.length];
-        for (int i = n - 2; i >= 1; i--) {
-            for (int j = 1; j <= n - 2; j++) {
-                if (i > j) continue;
-                int cost = Integer.MIN_VALUE;
-                for (int ind = i; ind <= j; ind++) {
-                    int iCost = cuts[i - 1] * cuts[ind] * cuts[j + 1] + dp[i][ind - 1] + dp[ind + 1][j];
-                    cost = Math.max(cost, iCost);
-                }
-                dp[i][j] = cost;
-            }
-        }
-        return dp[1][n - 2];
-    }
-
-    private static int burstBallon(int i, int j, int[] cuts) {
-        if (i > j) return 0;
-        int cost = Integer.MIN_VALUE;
-        for (int ind = i; ind <= j; ind++) {
-            int iCost = cuts[i - 1] * cuts[ind] * cuts[j + 1] + burstBallon(i, ind - 1, cuts) + burstBallon(ind + 1, j, cuts);
-            cost = Math.max(cost, iCost);
-        }
-        return cost;
-    }
-
-    private static int minCostToCutStickBottomUP(int ii, int n, int[] cuts) {
-        int[][] dp = new int[cuts.length][cuts.length];
-        for (int i = n - 2; i >= 1; i--) {
-            for (int j = 1; j <= n - 2; j++) {
-                if (i > j) continue;
-                int cost = Integer.MAX_VALUE;
-                for (int ind = i; ind <= j; ind++) {
-                    int iCost = cuts[j + 1] - cuts[i - 1] + dp[i][ind - 1] + dp[ind + 1][j];
-                    cost = Math.min(cost, iCost);
-                }
-                dp[i][j] = cost;
-            }
-        }
-        return dp[1][n - 2];
-    }
-
-    private static int minCostToCutStick(int i, int j, int[] cuts) {
-        if (i > j) return 0;
-        int cost = Integer.MAX_VALUE;
-        for (int ind = i; ind <= j; ind++) {
-            int iCost = cuts[j + 1] - cuts[i - 1] + minCostToCutStick(i, ind - 1, cuts) + minCostToCutStick(ind + 1, j, cuts);
-            cost = Math.min(cost, iCost);
-        }
-        return cost;
-    }
-
-    private static int mmBottomUP(int[] a) {
-        int n = a.length;
-        int[][] dp = new int[a.length][a.length];
-        int minSteps = Integer.MAX_VALUE;
-        for (int i = n - 1; i >= 1; i--) {
-            for (int j = i + 1; j <= n - 1; j++) {
-
-                int kthStep;
-                for (int k = i; k < j; k++) {
-                    int mulValue = a[i - 1] * a[k] * a[j];
-                    kthStep = mulValue + dp[i][k] + dp[k + 1][j];
-                    //update ans
-                    if (kthStep < minSteps) minSteps = kthStep;
-                }
-                dp[i][j] = minSteps;
-            }
-        }
-        return dp[1][n - 1];
-    }
-
-    private static int mm(int i, int j, int[] a) {
-        if (i == j) return 0;
-        int minSteps = Integer.MAX_VALUE;
-        int kthStep;
-        for (int k = i; k < j; k++) {
-            int mulValue = a[i - 1] * a[k] * a[j];
-            kthStep = mulValue + mm(i, k, a) + mm(k + 1, j, a);
-            //update ans
-            if (kthStep < minSteps) minSteps = kthStep;
-        }
-
-        return minSteps;
-    }
-
-    //not trival solutions
-    private static int countNumberOfLIS(int[] a) {
-        int dp[] = new int[a.length + 1];
-        Arrays.fill(dp, 1);
-
-        int ct[] = new int[a.length + 1];
-        Arrays.fill(ct, 1);
-        int maxct = 0;
-        for (int i = 1; i < a.length; i++) {
-            for (int j = 0; j < i; j++) {
-                if (a[i] > a[j] && dp[j] + 1 > dp[i]) {
-                    dp[i] = dp[j] + 1;
-                    ct[i] = ct[j];
-                } else if (a[i] > a[j] && dp[j] + 1 == dp[i])
-                    ct[i] += ct[j];
-
-                maxct = Math.max(maxct, ct[i]);
-            }
-        }
-        return maxct;
-
-    }
-
 
     private static List<Integer> printListAnotherWay(int[] a, List<Integer> ans) {
         int dp[] = new int[a.length + 1];
@@ -310,81 +127,6 @@ public class DP {
         return ans;
     }
 
-
-    private static int longestBiotonic(int[] a) {
-        int a1[] = lisFrom0(a);
-        int a2[] = lisFromn(a);
-
-        int max = 0;
-        for (int i = 0; i < a.length; i++) {
-            a1[i] = a1[i] + a2[i] - 1;
-            max = Math.max(max, a1[i]);
-        }
-
-        return max;
-    }
-
-    private static int[] lisFromn(int[] a) {
-
-        int dp[] = new int[a.length + 1];
-        Arrays.fill(dp, 1);
-
-        for (int i = a.length - 1; i >= 0; i--) {
-            for (int prev = a.length - 1; prev > i; prev--) {
-                if (a[i] > a[prev] && dp[prev] + 1 > dp[i]) {
-                    dp[i] = dp[prev] + 1;
-                }
-            }
-        }
-        return dp;
-    }
-
-    private static int[] lisFrom0(int[] a) {
-
-        int dp[] = new int[a.length + 1];
-        Arrays.fill(dp, 1);
-
-        for (int i = 1; i < a.length; i++) {
-            for (int prev = 0; prev < i; prev++) {
-                if (a[i] > a[prev] && dp[prev] + 1 > dp[i]) {
-                    dp[i] = dp[prev] + 1;
-                }
-            }
-        }
-        return dp;
-    }
-
-    private static int longestStringChain(String[] s) {
-        Arrays.sort(s);
-        int dp[] = new int[s.length + 1];
-        Arrays.fill(dp, 1);
-
-        int maxValue = 0;
-        for (int i = 1; i < s.length; i++) {
-            for (int j = 0; j < i; j++) {
-                if (isDiffOf1(s[i].toCharArray(), s[j].toCharArray()) && (dp[j] + 1 > dp[i])) {
-                    dp[i] = dp[j] + 1;
-                    maxValue = Math.max(maxValue, dp[i]);
-                }
-            }
-        }
-
-        return maxValue;
-    }
-
-    private static boolean isDiffOf1(char[] s, char[] t) {
-        if (s.length != t.length + 1) return false;
-        int iPointer = 0;
-        int jPointer = 0;
-        while (iPointer < s.length) {
-            if (jPointer < t.length && s[iPointer] == t[jPointer]) {
-                iPointer++;
-                jPointer++;
-            } else iPointer++;
-        }
-        if (iPointer == s.length && jPointer == t.length) return true;
-        return false;
-    }
 
     private static List<Integer> printListForDivisionSubset(int[] a, List<Integer> ans) {
         Arrays.sort(a);
@@ -444,22 +186,6 @@ public class DP {
         int nottake = 0 + printLIS(i + 1, prev, a, temp, ans);
 
         return Math.max(take, nottake);
-
-    }
-
-    private static int stockBuyWithNumberOfTxnLimit(int i, int[] price, boolean canBuy, int numberOfTxn) {
-        if (i >= price.length) return 0;
-        if (numberOfTxn <= 0) return 0;
-
-        if (canBuy) {
-            //buy or not buy
-            return Math.max(-price[i] + stockBuyWithNumberOfTxnLimit(i + 1, price, false, numberOfTxn),
-                    0 + stockBuyWithNumberOfTxnLimit(i + 1, price, canBuy, numberOfTxn));
-        } else {
-            //sell or not sell
-            return Math.max(price[i] + stockBuyWithNumberOfTxnLimit(i + 1, price, true, numberOfTxn - 1),
-                    0 + stockBuyWithNumberOfTxnLimit(i + 1, price, canBuy, numberOfTxn));
-        }
 
     }
 
@@ -548,20 +274,6 @@ public class DP {
 
         return Math.max(take, nottake);
 
-    }
-
-    private static int coins(int i, int[] coins, int sum) {
-        if (sum == 0) return 1;
-
-        if (i < 0) return 0;
-
-        int take = 0;
-        if (sum - coins[i] >= 0)
-            take = coins(i, coins, sum - coins[i]);
-
-        int nottake = 0 + coins(i - 1, coins, sum);
-
-        return take + nottake;
     }
 
     private static int bagKnapSack(int[] wt, int[] val, int maxBagWeight) {

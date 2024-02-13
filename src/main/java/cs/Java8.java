@@ -2,29 +2,23 @@ package cs;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.function.UnaryOperator;
-import java.util.stream.Collectors;
 
 public class Java8 {
     public static void main(String[] args) {
 
-        List<Emp> emps = Arrays.asList(new Emp("amp*", 100, 1),
-                new Emp("amp*", 200, 2),
-                new Emp("bmp2", 300, 3),
-                new Emp("cmp4", 400, 4));
+        List<Emp3> list = Arrays.asList(new Emp3("amp", 100.0, 1),
+                new Emp3("kct", 200.0, 2),
+                new Emp3("bmp2", 300.7, 3),
+                new Emp3("mpl", 400.4, 4));
 
-        UnaryOperator<Integer> unaryOperator = a -> a * 2;
-
-        Map<Boolean, List<Emp>> collect = emps.stream().collect(Collectors.partitioningBy(e -> e.getSalary() > 30));
-
+        list.stream().map(Emp3::getSalary).sorted().forEach(System.out::println);
 
     }
 }
 
-class Emp {
+class Emp3 {
     String name;
-    int salary;
+    Double salary;
     int dept;
 
     @Override
@@ -36,7 +30,7 @@ class Emp {
                 '}';
     }
 
-    public int getSalary() {
+    public Double getSalary() {
         return salary;
     }
 
@@ -48,7 +42,7 @@ class Emp {
         return name;
     }
 
-    public Emp(String name, int salary, int dept) {
+    public Emp3(String name, Double salary, int dept) {
         this.name = name;
         this.salary = salary;
         this.dept = dept;

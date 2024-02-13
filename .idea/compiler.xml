@@ -7,16 +7,16 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="Programms" />
+        <module name="Prog" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="Programms" target="1.8" />
+      <module name="Prog" target="19" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="Programms" options="" />
+      <module name="Prog" options="" />
     </option>
   </component>
 </project>
