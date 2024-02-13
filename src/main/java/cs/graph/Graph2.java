@@ -3,7 +3,7 @@ package cs.graph;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Graph {
+public class Graph2 {
     public static void main(String[] args) {
         int v = 4;
 
@@ -18,25 +18,16 @@ public class Graph {
         adj.get(3).addAll(Arrays.asList(new Edge(4, 1), new Edge(2, 2)));
         adj.get(4).addAll(Arrays.asList(new Edge(2, 2), new Edge(3, 1)));
 */
-        int g[][] = {
-                {1, 0, 1},
-                {0, 1, 0},
-                {1, 0, 1}
-        };
 
         adj.get(0).addAll(Arrays.asList(1, 2, 3));
         adj.get(1).addAll(Arrays.asList(0, 2, 3));
         adj.get(2).addAll(Arrays.asList(0, 1));
         adj.get(3).addAll(Arrays.asList(0, 1));
 
-        //gColor(0, adj, 3);
-        int nColor = 2;
-        int[] colorArray = new int[adj.size()];
-        Arrays.fill(colorArray, -1);
-        colorArray[0] = 1;
-        boolean color1 = color(1, adj, colorArray, nColor);
-        System.out.println(color1);
+    }
 
+    private static boolean isColor(List<List<Integer>> adj, int nColor, int[] colorArray) {
+        return color(1, adj, colorArray, nColor);
     }
 
     //TODO:correct this result currently not correct
@@ -63,7 +54,6 @@ public class Graph {
     private static void gColor(int start, List<List<Integer>> adj, int nColor) {
         Queue<Integer> queue = new ArrayDeque<>();
         queue.add(start);
-        int[] color = new int[adj.size()];
         boolean[] vis = new boolean[adj.size()];
         while (!queue.isEmpty()) {
             Integer n = queue.poll();
@@ -77,12 +67,6 @@ public class Graph {
                 }
             }
         }
-    }
-
-
-    private static void doMColorGraphDfs(Integer temp, int[] color, Stack<Integer> stack, List<List<Integer>> adj, int nColor, int[] vis) {
-
-
     }
 
     private static int cityWithSmallerNumberOfNeighbourThreshold(List<List<Edge>> adj, int distanceThreshold) {
@@ -319,14 +303,12 @@ public class Graph {
         }
 
         //collect result in ans
-
         while (!queue.isEmpty()) {
             ans.add(queue.poll());
         }
 
         return ans;
     }
-
 
     private static void wordLadderBruteForce(char[] startWord, char[] targetWord, String[] wordList) {
         Set<String> set = Arrays.stream(wordList).collect(Collectors.toSet());
@@ -825,41 +807,6 @@ public class Graph {
         return false;
     }
 
-    public static int orangesRotting(int[][] g) {
-        Queue<int[]> queue = new ArrayDeque<>();
-        for (int i = 0; i < g.length; i++) {
-            for (int j = 0; j < g[0].length; j++) {
-                if (g[i][j] == 2)
-                    queue.add(new int[]{i, j, 0});
-            }
-        }
-
-        boolean[][] vis = new boolean[g.length][g[0].length];
-        int ans = 0;
-        while (!queue.isEmpty()) {
-            int[] n = queue.poll();
-            //up
-            int row = n[0];
-            int col = n[1];
-            int count = n[2];
-
-            doRottenOrganes(g, queue, vis, row - 1, col, count);
-            doRottenOrganes(g, queue, vis, row + 1, col, count);
-            doRottenOrganes(g, queue, vis, row, col - 1, count);
-            doRottenOrganes(g, queue, vis, row, col + 1, count);
-
-            ans = Math.max(ans, count);
-        }
-        return ans;
-    }
-
-    private static void doRottenOrganes(int[][] g, Queue<int[]> queue, boolean[][] vis, int i, int j, int k) {
-        if (isValid(i, j, g) && g[i][j] == 1 && !vis[i][j]) {
-            queue.add(new int[]{i, j, k + 1});
-            vis[i][j] = true;
-        }
-    }
-
     public static int[][] mColorFill(int[][] image, int sr, int sc, int newColor) {
         doColorFill(image, sr, sc, newColor, image[sr][sc]);
         return image;
@@ -915,73 +862,12 @@ public class Graph {
             }
         }
     }
-
-    private static int numberOfProvinces(int start, int v, List<List<Integer>> adj) {
-        boolean vis[] = new boolean[v];
-        int ans = 0;
-        for (int node = start; node < v; node++) {
-            if (!vis[node]) {
-                ans++;
-                dfsNumberOfProvinces(node, vis, adj);
-            }
-        }
-        return ans;
-    }
-
-    private static void dfsNumberOfProvinces(int node, boolean[] vis, List<List<Integer>> adj) {
-
-        Stack<Integer> stack = new Stack<>();
-        stack.add(node);
-        while (!stack.isEmpty()) {
-            Integer n = stack.pop();
-            if (!vis[n]) {
-                vis[n] = true;
-                for (Integer temp : adj.get(n)) {
-                    if (!vis[temp]) stack.add(temp);
-                }
-            }
-        }
-    }
-
-    private static void dfs(int startNode, int v, List<List<Integer>> adj) {
-
-        Stack<Integer> stack = new Stack<>();
-        stack.add(startNode);
-        boolean[] vis = new boolean[v];
-        while (!stack.isEmpty()) {
-            Integer n = stack.pop();
-            if (!vis[n]) {
-                vis[n] = true;
-                System.out.print(n + " ");
-                for (Integer temp : adj.get(n)) {
-                    if (!vis[temp]) {
-                        stack.add(temp);
-                    }
-                }
-            }
-        }
-    }
-
-    private static void dfsTraversal(Integer n, Stack<Integer> stack, boolean[] vis, List<List<Integer>> adj) {
-        vis[n] = true;
-        System.out.print(n + " ");
-        for (Integer temp : adj.get(n)) {
-            if (!vis[temp]) {
-                stack.add(temp);
-            }
-        }
-    }
-
-
-
     /* earlier implemented methods
      * */
-
     private static boolean biPartite(List<List<Integer>> adj, int v, int start) {
         Stack<Integer> stack = new Stack<>();
         stack.add(start);
         boolean[] vis = new boolean[v];
-        ;
         Boolean[] col = new Boolean[v];
         boolean var = false;
         while (!stack.isEmpty()) {
@@ -1139,10 +1025,10 @@ public class Graph {
     //TODO
     private static boolean isCycleDirected(int start, List<List<Integer>> adj, int v) {
         boolean vis[] = new boolean[v];
-        boolean[] dfsvis = new boolean[v];
+        boolean[] pathvis = new boolean[v];
         for (int n = start; n < v; n++) {
             if (!vis[n]) {
-                if (checkCycleDirected(n, adj, vis, dfsvis)) return true;
+                if (checkCycleDirected(n, adj, vis, pathvis)) return true;
             }
         }
         return false;
@@ -1206,6 +1092,7 @@ public class Graph {
         return listOfEges_ans;
     }
 
+    //print path
     private static List<Integer> dijkstraShortestPath(int start, List<List<Edge>> adj, int V) {
         PriorityQueue<Edge> queue = new PriorityQueue<>(Comparator.comparingInt(Edge::getDistance).thenComparing(Edge::getNode));
         queue.add(new Edge(start, 0));
@@ -1242,6 +1129,7 @@ public class Graph {
     //min distance from start to end
     //does not work for negative/weight cycle
     //SSST
+    //for directed & undirectrd graph
     private static int dijkstraShortestPathFromStart(int start, ArrayList<List<Edge>> adj, int k) {
         PriorityQueue<Edge> queue = new PriorityQueue<>(Comparator.comparingInt(Edge::getDistance).thenComparing(Edge::getNode));
         queue.add(new Edge(0, start));
@@ -1265,9 +1153,93 @@ public class Graph {
         return dist[k - 1];
     }
 
+    //video -10
+    public static int orangesRotting(int[][] g) {
+        Queue<int[]> queue = new ArrayDeque<>();
+        //add all rotten in queue
+        for (int i = 0; i < g.length; i++) {
+            for (int j = 0; j < g[0].length; j++) {
+                //put rotten orange position to queue
+                if (g[i][j] == 2)
+                    queue.add(new int[]{i, j, 0});
+            }
+        }
+
+        boolean[][] vis = new boolean[g.length][g[0].length];
+        int ans = 0;
+        while (!queue.isEmpty()) {
+            int[] n = queue.poll();
+            //up
+            int row = n[0];
+            int col = n[1];
+            int count = n[2];
+
+            doRottenOrganes(g, queue, vis, row - 1, col, count);
+            doRottenOrganes(g, queue, vis, row + 1, col, count);
+            doRottenOrganes(g, queue, vis, row, col - 1, count);
+            doRottenOrganes(g, queue, vis, row, col + 1, count);
+
+            ans = Math.max(ans, count);
+        }
+        return ans;
+    }
+
+    private static void doRottenOrganes(int[][] g, Queue<int[]> queue, boolean[][] vis, int i, int j, int k) {
+        if (isValid(i, j, g) && g[i][j] == 1 && !vis[i][j]) {
+            queue.add(new int[]{i, j, k + 1});
+            vis[i][j] = true;
+        }
+    }
+
+    private static int numberOfProvinces(int start, int v, List<List<Integer>> adj) {
+        boolean vis[] = new boolean[v];
+        int ans = 0;
+        for (int node = start; node < v; node++) {
+            if (!vis[node]) {
+                ans++;
+                dfsNumberOfProvinces(node, vis, adj);
+            }
+        }
+        return ans;
+    }
+
+    private static void dfsNumberOfProvinces(int node, boolean[] vis, List<List<Integer>> adj) {
+
+        Stack<Integer> stack = new Stack<>();
+        stack.add(node);
+        while (!stack.isEmpty()) {
+            Integer n = stack.pop();
+            if (!vis[n]) {
+                vis[n] = true;
+                for (Integer temp : adj.get(n)) {
+                    if (!vis[temp]) stack.add(temp);
+                }
+            }
+        }
+    }
+
+    private static void dfs(int startNode, int v, List<List<Integer>> adj) {
+
+        Stack<Integer> stack = new Stack<>();
+        stack.add(startNode);
+        boolean[] vis = new boolean[v];
+        while (!stack.isEmpty()) {
+            Integer n = stack.pop();
+            if (!vis[n]) {
+                vis[n] = true;
+                System.out.print(n + " ");
+                for (Integer temp : adj.get(n)) {
+                    if (!vis[temp]) {
+                        stack.add(temp);
+                    }
+                }
+            }
+        }
+    }
+
 }
 
-class Node {
+class   Node {
 
     private int node;
     private int parent;
@@ -1363,7 +1335,7 @@ class Edge {
 
 }
 
-
+//for trie cases
 class Wpair {
     char[] name;
     int count;
