@@ -658,6 +658,7 @@ public class Tree {
         if (node.left != null) sum_down += node.left.data;
         if (node.right != null) sum_down += node.right.data;
 
+        //if sum down is lesser than copy the value
         if (node.data >= sum_down) {
             if (node.left != null) node.left.data = node.data;
             if (node.right != null) node.right.data = node.data;
@@ -1022,7 +1023,7 @@ public class Tree {
         Stack<TreeNode> stack = new Stack<>();
         stack.add(node);
         //since adding at 0 index no need to reverse
-        //ans is reverse of list
+        //Or, ans is reverse of list
         List<TreeNode> ans = new LinkedList<>();
         while (!stack.isEmpty()) {
             TreeNode temp = stack.pop();
