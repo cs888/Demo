@@ -1019,19 +1019,19 @@ public class Tree {
     }
 
     //TC-> O(n)
-    private static void postOrderIterative2Stack(TreeNode node) {
+    private static List<Integer> postOrderIterative2Stack(TreeNode node) {
         Stack<TreeNode> stack = new Stack<>();
         stack.add(node);
         //since adding at 0 index no need to reverse
-        //Or, ans is reverse of list
-        List<TreeNode> ans = new LinkedList<>();
+        //Otherwise, ans is reverse of list
+        List<Integer> ans = new LinkedList<>();
         while (!stack.isEmpty()) {
             TreeNode temp = stack.pop();
-            ans.add(0, temp);
             if (temp.left != null) stack.add(temp.left);
             if (temp.right != null) stack.add(temp.right);
+            ans.add(0, temp.data);
         }
-        System.out.println(ans);
+        return ans;
     }
 
     //TC-> O(n)

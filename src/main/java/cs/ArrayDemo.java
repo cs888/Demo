@@ -4,80 +4,37 @@ import java.util.*;
 
 public class ArrayDemo {
     public static void main(String[] args) {
-      String s="1 2 3 4";
+        String s = "1 2 3 4";
 
-        String[] split = s.split("");
-        System.out.println(Arrays.toString(split));
+        System.out.println();
 
-    }
-
-    public static int subarrayWithMaxProduct(int []a){
-       int ans=0 , suffix=1,prefix=1;
-        int n = a.length;
-        for (int i = 0; i < n; i++) {
-            if(a[i]==0) prefix=1;
-            if(a[n-i-1]==0) suffix=1;
-            prefix*=a[i];
-            suffix*=a[n-i-1];
-            ans=Math.max(ans,Math.min(prefix,suffix));
-        }
-        return ans;
     }
 
     //ToDo
-    public static void mergeTwoSortedArraysWithoutExtraSpace(long []a1, long []a2){
+    public static void mergeTwoSortedArraysWithoutExtraSpace(long[] a1, long[] a2) {
 
         int n = a1.length + a2.length;
-        int gap= (int) Math.ceil(n /2);
-        int start=0;
-        boolean flag=false;
-        while (gap>1 || flag) {
+        int gap = (int) Math.ceil(n / 2);
+        int start = 0;
+        boolean flag = false;
+        while (gap > 1 || flag) {
             while (gap < n) {
-                if (start<a1.length && gap<a1.length && a1[start] > a1[gap]) {
+                if (start < a1.length && gap < a1.length && a1[start] > a1[gap]) {
                     swap(start, gap, a1);
-                }
-               else if (start>=a1.length && gap<a2.length && a2[start] > a2[gap]) {
+                } else if (start >= a1.length && gap < a2.length && a2[start] > a2[gap]) {
                     swap(start, gap, a2);
+                } else if (start < a1.length && gap < a2.length && a1[start] > a2[gap]) {
+                    long temp = a2[gap];
+                    a2[gap] = a1[start];
+                    a1[start] = temp;
                 }
-                else if (start<a1.length && gap<a2.length && a1[start] > a2[gap]) {
-                    long temp=a2[gap];
-                    a2[gap]=a1[start];
-                    a1[start]=temp;
-                }
-                start++;gap++;
+                start++;
+                gap++;
             }
             gap = (int) Math.ceil(gap / 2);
-            if(gap==1 && flag==false) flag=true;
-            else flag=false;
+            if (gap == 1 && flag == false) flag = true;
+            else flag = false;
         }
-    }
-
-    //AP- 3
-    public static int findPages(ArrayList<Integer> arr, int n, int m) {
-        int[] a = arr.stream().mapToInt(x -> x).toArray();
-        int r = Arrays.stream(a).sum();
-        int l = Arrays.stream(a).max().getAsInt();
-
-       while (l<r){
-           int count=getStudentCount(a,l);
-           if(count>m)r--;
-           else l++;
-       }
-       return r;
-    }
-
-    private static int getStudentCount(int[] a, int maxPage) {
-        int count=1 , tillLast=0;
-        for (int book = 0; book < a.length; book++) {
-            if(a[book]+tillLast<=maxPage){
-                tillLast+=a[book];
-            }
-            else {
-                count++;
-                tillLast=a[book];
-            }
-        }
-        return count;
     }
 
     //TODO: ISSUE WITH CODE
@@ -86,9 +43,9 @@ public class ArrayDemo {
         List<List<Integer>> ans = new ArrayList<>();
         int n = nums.length;
         for (int i = 0; i < n; i++) {
-            if(i>0 && nums[i]==nums[i-1]) continue;
+            if (i > 0 && nums[i] == nums[i - 1]) continue;
             for (int j = i + 1; j < n; j++) {
-                if(j!=i+1 && nums[j]==nums[j-1]) continue;
+                if (j != i + 1 && nums[j] == nums[j - 1]) continue;
                 int k = j + 1, l = n - 1;
                 while (k < n && l < n && k < l) {
                     int ij = target - (nums[i] + nums[j]);
@@ -103,135 +60,6 @@ public class ArrayDemo {
             }
         }
         return ans;
-    }
-
-    public static List<Integer> majorityElement(int[] a) {
-
-        int count1 = 0, ele1 = -1;
-        int count2 = 0, ele2 = 0;
-        for (int i = 0; i < a.length; i++) {
-
-            if (count1 == 0 && a[i] != ele2) {
-                count1++;
-                ele1 = a[i];
-            } else if (count2 == 0 && a[i] != ele1) {
-                count2++;
-                ele2 = a[i];
-            } else if (a[i] == ele1) {
-                count1++;
-            } else if (a[i] == ele2) {
-                count2++;
-            } else {
-                count1--;
-                count2--;
-            }
-
-        }
-
-        for (int i = 0; i < a.length; i++) {
-            if (a[i] == ele1) count1++;
-            else if (a[i] == ele2) count2++;
-        }
-        int l = (int) Math.floor(a.length / 3);
-        List<Integer> ans = new ArrayList<>();
-        if (count1 > l) ans.add(ele1);
-        if (count2 > l) ans.add(ele2);
-        return ans;
-
-    }
-
-    public static int aggressiveCows(int[] stalls, int k) {
-
-        int maxDist = -1;
-        for (int i = 0; i < stalls.length; i++) {
-            maxDist = Math.max(maxDist, stalls[i]);
-        }
-        for (int dist = 1; dist <= maxDist; dist++) {
-            if (canPlatAti(dist, stalls, k)) continue;
-            else return dist - 1;
-        }
-        return -1;
-    }
-
-    private static boolean canPlatAti(int dist, int[] stalls, int k) {
-        int last = stalls[0];
-        k = k - 1;
-        for (int i = 1; i < stalls.length; i++) {
-            if (stalls[i] - last >= dist) {
-                k--;
-            }
-            if (k == 0) return true;
-        }
-        return false;
-    }
-
-    public int subarraySum(int[] nums, int k) {
-
-        //preFixSum,count
-        Map<Integer, Integer> map = new HashMap<>();
-        int count = 0;
-        int prefixSum = 0;
-        map.put(0, 1);
-        for (int i = 0; i < nums.length; i++) {
-            prefixSum += nums[i];
-            int key = prefixSum - k;
-            if (map.containsKey(key)) {
-                Integer val = map.get(key);
-                count += val;
-                map.put(prefixSum, val + 1);
-            } else map.put(prefixSum, 1);
-        }
-        return count;
-
-    }
-
-    private static int kthMissingNumber(int[] a, int k) {
-        if (a[0] > k) return k;
-        int n = a.length;
-        int l = 0, r = n - 1;
-        while (l < r) {
-            int mid = (l + r) / 2;
-            int totalMissing = a[mid] - mid - 1;
-            if (totalMissing > k) r = mid - 1;
-            else l = mid + 1;
-        }
-        return k + r + 1;
-    }
-
-    private static void nextPermutation1(int[] a) {
-        int n = a.length;
-        int ind = -1;
-        for (int i = n - 2; i >= 0; i--) {
-            if (a[i] < a[i + 1]) {
-                ind = i;
-                break;
-            }
-        }
-        if (ind == -1) {
-            Arrays.sort(a);
-            return;
-        }
-        for (int i = n - 1; i >= 0; i--) {
-            if (a[ind] < a[i]) {
-                swap(ind, i, a);
-                break;
-            }
-        }
-
-        int l = ind + 1, r = n - 1;
-        while (l < r) {
-            swap(l, r, a);
-            l++;
-            r--;
-        }
-    }
-
-    private static int kthMissingBrute(int[] a, int k) {
-        for (int i = 0; i < a.length; i++) {
-            if (k <= a[i]) k++;
-            else break;
-        }
-        return k;
     }
 
     private static void reArrange(int[] a) {
@@ -250,32 +78,11 @@ public class ArrayDemo {
         System.out.println(Arrays.toString(ans));
     }
 
-    public static void sortArray(ArrayList<Integer> arr, int n) {
-        int a[] = arr.stream().mapToInt(x -> x).toArray();
-        int low = 0, mid = 0, high = a.length - 1;
-        while (mid <= high) {
-            if (a[mid] == 0) {
-                swap(low, mid, a);
-                low++;
-                mid++;
-            } else if (a[mid] == 1) {
-                mid++;
-            }
-            //a[mid]==2
-            else {
-                swap(mid, high, a);
-                high--;
-            }
-        }
-        System.out.println(Arrays.toString(a));
-    }
-
     public static int longestSubarrayWithSumK(int[] a, long sum) {
         long tempSum = 0;
         int len = 0;
         int l = 0, r = 0;
         while (l < a.length && r < a.length) {
-
             if (tempSum + a[r] < sum) {
                 tempSum += a[r];
                 r++;
@@ -313,23 +120,6 @@ public class ArrayDemo {
             map.putIfAbsent(curSum, i);
         }
         return len;
-    }
-
-    //BS-9
-    public static int findPeakElement(ArrayList<Integer> arr) {
-        int a[] = arr.stream().mapToInt(x -> x).toArray();
-        if (a[0] > a[1]) return 0;
-        int n = a.length;
-        if (a[n - 1] > a[n - 2]) return n - 1;
-        int l = 1;
-        int r = a.length - 2;
-        while (l <= r) {
-            int mid = (l + r) / 2;
-            if (a[mid] > a[mid - 1] && a[mid] > a[mid + 1]) return mid;
-            else if (a[mid] > a[mid - 1]) l = mid + 1;
-            else r = mid - 1;
-        }
-        return -1;
     }
 
     //BS-8
@@ -372,61 +162,6 @@ public class ArrayDemo {
         return ans;
     }
 
-    //BS- 5
-    //with duplicate
-    private static int searchInRotatedArray2(int[] a, int target) {
-        int low = 0;
-        int high = a.length - 1;
-        while (low < high) {
-            int mid = low + high / 2;
-            if (a[mid] == target) return mid;
-            if (a[low] == mid && a[mid] == high) {
-                low++;
-                high--;
-                continue;
-            }
-            //first half is sorted
-            if (a[low] <= a[mid]) {
-                if (a[low] >= target && target < a[mid]) high = mid - 1;
-                else low = mid + 1;
-            } else {
-                if (a[mid] < target && target <= a[high]) low = mid + 1;
-                else high = mid - 1;
-            }
-        }
-        return -1;
-    }
-
-    //BS-4
-    private static int searchInRotatedArray(int[] a, int target) {
-        int low = 0;
-        int high = a.length - 1;
-        while (low < high) {
-            int mid = low + high / 2;
-            if (a[mid] == target) return mid;
-            //first half is sorted
-            if (a[low] <= a[mid]) {
-                if (a[low] >= target && target < a[mid]) high = mid - 1;
-                else low = mid + 1;
-            } else {
-                if (a[mid] < target && target <= a[high]) low = mid + 1;
-                else high = mid - 1;
-            }
-        }
-        return -1;
-    }
-
-    private static int getFirstOccuranceLower2(int[] nums, int target) {
-        int l = 0;
-        int r = nums.length;
-        while (l < r) {
-            int mid = (l + r) / 2;
-            if (target > nums[mid]) l = mid + 1;
-            else r = mid;
-        }
-        return l;
-    }
-
     private static int getFirstOccuranceLower1(int[] nums, int target) {
         int l = 0;
         int r = nums.length - 1;
@@ -440,34 +175,6 @@ public class ArrayDemo {
                 l = mid + 1;
         }
         return ans;
-    }
-
-    private static int secondMin(int[] a) {
-        int min = a[0];
-        int second_min = Integer.MAX_VALUE;
-        for (int i = 1; i < a.length; i++) {
-            if (a[i] < min) {
-                second_min = min;
-                min = a[i];
-            } else if (a[i] < second_min) {
-                second_min = a[i];
-            }
-        }
-        return second_min;
-    }
-
-    private static int secondMax(int[] a) {
-        int max = a[0];
-        int second_max = Integer.MIN_VALUE;
-        for (int i = 1; i < a.length; i++) {
-            if (a[i] > max) {
-                second_max = max;
-                max = a[i];
-            } else if (a[i] > second_max) {
-                second_max = a[i];
-            }
-        }
-        return second_max;
     }
 
     static int[] nextGreaterElement(int[] a, int n) {
@@ -597,13 +304,12 @@ public class ArrayDemo {
                 swap(i++, j, a);
         }
         swap(r, l, a);
-
         return i;
     }
 
     static void mergeSort(int l, int r, int[] a) {
         if (l >= r) return;
-        int mid = l + (r - l) / 2;
+        int mid = l + r >> 1;
         mergeSort(l, mid, a);
         mergeSort(mid + 1, r, a);
         merge(l, mid, r, a);

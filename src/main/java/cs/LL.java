@@ -1,5 +1,10 @@
 package cs;
 
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.PriorityQueue;
+import java.util.Queue;
+
 public class LL {
     public static void main(String[] args) {
         Node n1 = new Node(1);
@@ -15,16 +20,57 @@ public class LL {
 
         Node temp = merge;
         while (temp != null) {
-            System.out.print(temp.val + " ");
+            System.out.print(temp.data + " ");
             temp = temp.next;
         }
+
+    }
+
+    //LL-10
+    public static boolean isPalindrome(Node head) {
+        if (head == null || head.next == null) return true;
+
+        Node slow = head;
+        Node fast = head;
+
+        while (fast != null && fast.next != null) {
+            slow = slow.next;
+            fast = fast.next.next;
+        }
+
+        Node newHead = rev(slow);
+        slow = head;
+        while (newHead != null) {
+            if (slow.data != newHead.data)
+                return false;
+            slow = slow.next;
+            newHead = newHead.next;
+        }
+        return true;
+    }
+
+    //LL- 6
+    public static Node oddEvenList(Node head) {
+        Node odd = head;
+        Node even = head.next;
+        Node even_head = head.next;
+
+        while (even != null && even.next != null) {
+            odd.next = odd.next.next;
+            odd = odd.next;
+
+            even.next = even.next.next;
+            even = even.next;
+        }
+        odd.next = even_head;
+        return head;
 
     }
 
     private static Node merge(Node n1, Node n2) {
         if (n1 == null) return n2;
         else if (n2 == null) return n1;
-        if (n1.val < n2.val) {
+        if (n1.data < n2.data) {
             n1.next = merge(n1.next, n2);
             return n1;
         } else {
@@ -33,32 +79,32 @@ public class LL {
         }
     }
 
-
-    private static Node rev(Node node) {
-        if (node.next == null) return node;
-        Node head = rev(node.next);
-        node.next.next = node;
-        node.next = null;
-        return head;
+    static Node rev(Node head) {
+        if (head == null || head.next == null)
+            return head;
+        Node newhead = rev(head.next);
+        head.next.next = head;
+        head.next = null;
+        return newhead;
     }
-
-
 }
 
 class Node {
-    int val;
+    int data;
     Node next;
+    Node prev;
 
     Node() {
     }
 
-    Node(int val) {
-        this.val = val;
+    Node(int data) {
+        this.data = data;
     }
 
-    Node(int val, Node next) {
-        this.val = val;
+    Node(int data, Node next, Node prev) {
+        this.data = data;
         this.next = next;
+        this.prev = prev;
     }
 
     @Override

@@ -637,8 +637,10 @@ public class DP {
     private static int lis(int i, int prevIndex, int[] a) {
         if (i >= a.length) return 0;
         int take = 0;
+        //take
         if (prevIndex == -1 || a[i] > a[prevIndex])
             take = 1 + lis(i + 1, i, a);
+        //not take
         int not_take = 0 + lis(i + 1, prevIndex, a);
         return Math.max(take, not_take);
     }
@@ -812,12 +814,12 @@ public class DP {
     //dp-35
     private static int stockMax(int[] a) {
         int buy_min = a[0];
-        int ans = 0;
+        int profit = 0;
         for (int i = 1; i < a.length; i++) {
-            ans = Math.max(ans, a[i] - buy_min);
+            profit = Math.max(profit, a[i] - buy_min);
             buy_min = Math.min(buy_min, a[i]);
         }
-        return ans;
+        return profit;
     }
 
     //dp-34
@@ -882,7 +884,7 @@ public class DP {
             return wild(i - 1, j - 1, t, p);
         else if (p[j] == '*')
             return wild(i - 1, j, t, p) || wild(i, j - 1, t, p);
-        else return false;
+         return false;
 
     }
 

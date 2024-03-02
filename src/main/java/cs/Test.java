@@ -8,6 +8,18 @@ import java.util.stream.Collectors;
 public class Test {
     public static void main(String[] args) {
 
+        Queue<int[]> queue1=new PriorityQueue<>((a, b) -> b[0] - a[0]);
+        queue1.add(new int[]{3,1});
+        queue1.add(new int[]{5,8});
+        queue1.add(new int[]{9,0});
+        System.out.println(Arrays.toString(queue1.poll()));
+
+        Queue<Integer> stack=new ArrayDeque<>(2);
+        System.out.println(stack.add(2));
+        System.out.println(stack.add(3));
+        System.out.println(stack.add(5));
+        System.out.println(Arrays.toString(stack.toArray()));
+
         int a[][] = {{4, 30, 3}, {1, 20, 2}, {2, 10, 1}};
 
         //John.*+hurt
@@ -38,13 +50,14 @@ public class Test {
         adj.get(3).addAll(Arrays.asList(0, 2, 4));
         adj.get(4).addAll(Arrays.asList(2, 3));
 
-        Queue<Integer> stack = new PriorityQueue<>();
-        stack.add(1);
-        stack.add(2);
-        stack.add(3);
+        Queue<Integer> queue = new PriorityQueue<>();
+        System.out.println(queue.peek());
+        queue.add(1);
+        queue.add(2);
+        queue.add(3);
 
-        stack.remove(0);
-        List<Integer> collect = stack.stream().sorted(Collections.reverseOrder()).collect(Collectors.toList());
+        queue.remove(0);
+        List<Integer> collect = queue.stream().sorted(Collections.reverseOrder()).collect(Collectors.toList());
         int t[] = {1, 2, 4, 5};
         int[] temp = new int[t.length + 2];
         System.arraycopy(t, 0, temp, 1, t.length - 2);
