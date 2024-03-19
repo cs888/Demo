@@ -10,7 +10,337 @@ public class Array {
         System.out.println(a1 == b);
     }
 
-    //BS-19
+    //AP-28
+    public static int subarrayWithMaxProduct(int[] a) {
+        int ans = Integer.MIN_VALUE, suffix = 1, prefix = 1;
+        int n = a.length;
+        for (int i = 0; i < a.length; i++) {
+            if (a[i] == 0) prefix = 1;
+            if (a[n - i - 1] == 0) suffix = 1;
+            prefix *= a[i];
+            suffix *= a[n - i - 1];
+            ans = Math.max(ans, Math.max(prefix, suffix));
+        }
+        return ans;
+    }
+
+    //AP-27
+    public static int team(int[] skill, int n) {
+        return mergeSortCountInversionsPair(0, n - 1, skill);
+    }
+
+    static int mergeSortCountInversionsPair(int low, int high, int[] arr) {
+        if (low >= high)
+            return 0;
+        int count = 0;
+        int mid = low + high >> 1;
+        count += mergeSortCountInversionsPair(low, mid, arr);
+        count += mergeSortCountInversionsPair(mid + 1, high, arr);
+        count += mergeAndCountInversionsPair(low, mid, high, arr);
+        return count;
+    }
+
+    static int mergeAndCountInversionsPair(int low, int mid, int high, int[] arr) {
+        int[] temp = new int[high - low + 1];
+        int ind = 0, left = low, right = mid + 1, count = 0;
+        while (left <= mid && right <= high) {
+            if (arr[left] <= arr[right]) {
+                temp[ind++] = arr[left++];
+            } else {
+                temp[ind++] = arr[right++];
+                // get count
+                count = getPairCount(low, mid, high, arr);
+            }
+        }
+        while (left <= mid)
+            temp[ind++] = arr[left++];
+
+        while (right <= high)
+            temp[ind++] = arr[right++];
+
+        for (int i = low, j = 0; i <= high; i++) {
+            arr[i] = temp[j++];
+        }
+        return count;
+    }
+
+    static int getPairCount(int low, int mid, int high, int[] arr) {
+        int count = 0;
+        int right = mid + 1;
+        for (int i = low; i <= mid; i++) {
+            while (right <= high && arr[i] > 2 * arr[right]) {
+                right++;
+            }
+            count += right - mid - 1;
+        }
+        return count;
+    }
+
+    //AP-26
+    public static int numberOfInversions(int[] a, int n) {
+        return mergeSortCountInversions(0, n - 1, a);
+    }
+
+    static int mergeSortCountInversions(int l, int r, int[] arr) {
+        if (l >= r)
+            return 0;
+        int count = 0;
+        int mid = l + r >> 1;
+        count += mergeSortCountInversions(l, mid, arr);
+        count += mergeSortCountInversions(mid + 1, r, arr);
+        count += mergeAndCountInversions(l, mid, r, arr);
+        return count;
+    }
+
+    static int mergeAndCountInversions(int l, int mid, int r, int[] arr) {
+        int[] temp = new int[r - l + 1];
+        int ind = 0, lStart = l, rStart = mid + 1, count = 0;
+        while (lStart <= mid && rStart <= r) {
+            if (arr[lStart] <= arr[rStart]) {
+                temp[ind++] = arr[lStart++];
+            } else {
+                count += mid - lStart + 1;
+                temp[ind++] = arr[rStart++];
+            }
+        }
+        while (lStart <= mid)
+            temp[ind++] = arr[lStart++];
+
+        while (rStart <= r)
+            temp[ind++] = arr[rStart++];
+
+        for (int i = l, j = 0; i <= r; i++) {
+            arr[i] = temp[j++];
+        }
+        return count;
+    }
+
+
+    //mergeSort Algorithm
+    static void mergeSort(int l, int r, int[] arr) {
+        if (l >= r)
+            return;
+        int mid = l + r >> 1;
+        mergeSort(l, mid, arr);
+        mergeSort(mid + 1, r, arr);
+        merge(l, mid, r, arr);
+    }
+
+    static void merge(int l, int mid, int r, int[] arr) {
+        int[] temp = new int[r - l + 1];
+        int ind = 0, lStart = l, rStart = mid + 1;
+        while (lStart <= mid && rStart <= r) {
+            if (arr[lStart] < arr[rStart]) {
+                temp[ind++] = arr[lStart++];
+            } else {
+                temp[ind++] = arr[rStart++];
+            }
+        }
+        while (lStart <= mid)
+            temp[ind++] = arr[lStart++];
+
+        while (rStart <= r)
+            temp[ind++] = arr[rStart++];
+
+        for (int i = l, j = 0; i <= r; i++) {
+            arr[i] = temp[j++];
+        }
+    }
+
+    //AP-25
+    public static int[] findMissingRepeatingNumbers(int[] a) {
+        int n = a.length, xr = 0;
+        for (int i = 0; i < n; i++) {
+            xr ^= a[i];
+            xr ^= i + 1;
+        }
+        //get first nonZero bit of xr
+        int bitNo = xr & ~(xr - 1);
+        int xrZeroGroup = 0, xrOneGroup = 0;
+        for (int i = 0; i < n; i++) {
+            if ((a[i] & bitNo) != 0) xrOneGroup ^= a[i];
+            else xrZeroGroup ^= a[i];
+        }
+
+        for (int i = 1; i <= n; i++) {
+            if ((i & bitNo) != 0) xrOneGroup ^= i;
+            else xrZeroGroup ^= i;
+        }
+        int count = 0;
+        for (int i = 0; i < n; i++) {
+            if (a[i] == xrOneGroup) count++;
+        }
+        if (count == 2) return new int[]{xrOneGroup, xrZeroGroup};
+        return new int[]{xrZeroGroup, xrOneGroup};
+
+    }
+
+    public static int[] findMissingRepeatingNumbers2(int[] a) {
+        long n = a.length;
+        long s = Arrays.stream(a).sum();
+        long sn = (n * (n + 1)) / 2;
+        long x_minus_y = s - sn;
+        long s2 = Arrays.stream(a).map(x -> x * x).sum();
+        long s2n = (n * (n + 1) * (2 * n + 1)) / 6;
+        long xsquare_mius_ysquare = s2 - s2n;
+        long x_plus_y = xsquare_mius_ysquare / x_minus_y;
+        long x = (int) ((x_plus_y + x_minus_y) / 2);
+        long y = (int) x_plus_y - x;
+        return new int[]{(int) x, (int) y};
+    }
+
+    //AP-24
+    // another way
+    public static void mergeTwoSortedArraysWithoutExtraSpace1(long[] a, long[] b) {
+
+        int i = a.length - 1, j = 0;
+        while (i >= 0 && j < b.length) {
+            if (a[i] > b[j]) {
+                swap(a, b, i, j);
+                j++;
+            }
+            i--;
+        }
+        Arrays.sort(a);
+        Arrays.sort(b);
+    }
+
+    //AP-24
+    public static void mergeTwoSortedArraysWithoutExtraSpace(long[] a, long[] b) {
+        int n = a.length;
+        int m = b.length;
+        int len = n + m;
+        int gap = (int) Math.ceil(len / 2);
+        while (gap > 0) {
+            int i = 0, j = i + gap;
+            while (j < n + m) {
+                if (j < n) {
+                    // both lies in first array
+                    if (a[i] > a[j]) {
+                        swap(a, a, i, j);
+                    }
+                } else if (i >= n) {
+                    // both lies in second array
+                    if (b[i - n] > b[j - n]) {
+                        swap(b, b, i - n, j - n);
+                    }
+                } else {
+                    if (a[i] > b[j - n]) {
+                        swap(a, b, i, j - n);
+                    }
+                }
+                i++;
+                j++;
+            }
+            if (gap == 1) break;
+            gap = gap / 2 + gap % 2;
+        }
+    }
+
+    private static void swap(long[] a, long[] b, int i, int j) {
+        long temp = a[i];
+        a[i] = b[j];
+        b[j] = temp;
+    }
+
+    //AP-23
+    //another way also there usig prev
+    public static List<List<Integer>> mergeOverlappingIntervals(int[][] a) {
+        Arrays.sort(a, Comparator.comparingInt(x -> x[0]));
+        List<List<Integer>> ans = new ArrayList<>();
+
+        for (int i = 0; i < a.length; i++) {
+            if (ans.isEmpty() || ans.get(ans.size() - 1).get(1) < a[i][0]) {
+                ans.add(new ArrayList<>(List.of(a[i][0], a[i][1])));
+            } else {
+                ans.get(ans.size() - 1).set(1, Math.max(ans.get(ans.size() - 1).get(1), a[i][1]));
+            }
+        }
+        return ans;
+    }
+
+    //AP -22
+    public static int subarraysWithSumK(int[] arr, int k) {
+        //previousSum,Count
+        Map<Integer, Integer> map = new HashMap<>();
+        int zorTillNow = 0, count = 0;
+        map.put(0, 1); // Setting for 0 in the map.
+        for (int i = 0; i < arr.length; i++) {
+            // add current element to prefix Sum:
+            zorTillNow ^= arr[i];
+
+            // Add the number of previous subarrays
+            count += map.getOrDefault(zorTillNow ^ k, 0);
+
+            // Update the count of prefix sum in the map.
+            map.put(zorTillNow, map.getOrDefault(zorTillNow, 0) + 1);
+        }
+        return count;
+    }
+
+    //AP-21
+    static public List<List<Integer>> fourSum(int[] a, int target) {
+        Arrays.sort(a);
+        int n = a.length;
+        List<List<Integer>> ans = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            if (i > 0 && a[i] == a[i - 1])
+                continue;
+            for (int j = i + 1; j < n; j++) {
+                if (j > i + 1 && a[j - 1] == a[j])
+                    continue;
+                int k = j + 1, l = n - 1;
+                while (k < l) {
+                    int sum = a[i] + a[j] + a[k] + a[l];
+                    if (sum < target)
+                        k++;
+                    else if (sum > target)
+                        l--;
+                    else {
+                        ans.add(List.of(a[i], a[j], a[k], a[l]));
+                        k++;
+                        l--;
+                        while (k < l && a[k] == a[k - 1])
+                            k++;
+                        while (k < l && a[l] == a[l + 1])
+                            l--;
+                    }
+                }
+            }
+        }
+        return ans;
+    }
+
+    //AP-20
+    public List<List<Integer>> threeSum(int n, int[] a) {
+        Arrays.sort(a);
+        List<List<Integer>> ans = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            if (i > 0 && a[i] == a[i - 1])
+                continue;
+            int j = i + 1, k = n - 1;
+            while (j < k) {
+                int sum = a[i] + a[j] + a[k];
+                if (sum < 0)
+                    j++;
+                else if (sum > 0)
+                    k--;
+                else {
+                    ans.add(List.of(a[i], a[j], a[k]));
+                    j++;
+                    k--;
+                    while (j < k && a[j] == a[j - 1])
+                        j++;
+                    while (j < k && a[k] == a[k + 1])
+                        k--;
+                }
+            }
+        }
+        return ans;
+    }
+
+
+    //AP-19
     public static List<Integer> majorityElement(int[] a) {
 
         int count1 = 0, ele1 = 1;
@@ -47,7 +377,26 @@ public class Array {
 
     }
 
-    //BS-18
+    //AP-19
+    public static List<List<Integer>> triplet(int n, int[] a) {
+        Arrays.sort(a);
+        int start = 0, mid = start + 1, end = n - 1;
+        List<List<Integer>> ans = new ArrayList<>();
+        while (start < n - 2) {
+            while (mid < end) {
+                if (start != mid && a[mid - 1] == a[mid]) continue;
+                else if (a[start] + a[mid] + a[end] == 0) {
+                    ans.add(List.of(a[start], a[mid], a[end]));
+                    mid++;
+                } else if (a[mid] + a[end] < 0) mid++;
+                else end--;
+            }
+            start++;
+        }
+        return ans;
+    }
+
+    //AP-18
     public static List<List<Integer>> pascalTrianglePrint(int totalRow) {
         List<List<Integer>> ans = new ArrayList<>();
         for (int row = 1; row <= totalRow; row++) {
@@ -266,20 +615,25 @@ public class Array {
         return ans;
     }
 
-    //TODO:
-    //  for only postive & negatives
-    public static int getLongestSubarray(int[] a, int k) {
+    //  for only postive & zeros in array
+    public static int longestSubarrayWithSumK(int[] a, long k) {
 
-        int l = 0, r = 0, temp = 0, ans = 0;
+        long tempSum = 0;
+        int len = 0, r = 0, l = 0;
         while (r < a.length) {
-            if (temp + a[r] < k) temp -= a[l];
-            else {
-                temp += a[r];
-                if (temp == k) ans = Math.max(ans, r - l + 1);
-                r++;
+            if (tempSum > k) {
+                tempSum -= a[l++];
+                continue;
+            } else if (tempSum == k) {
+                // had taken till last sum so it will r-l not r-l+1
+                len = Math.max(len, r - l);
             }
+            tempSum += a[r++];
         }
-        return ans;
+        // for last Element
+        if (tempSum == k)
+            len = Math.max(len, r - l);
+        return len;
     }
 
     //for positives , negatives , also zero from o to Integer.MaxValue
@@ -287,7 +641,7 @@ public class Array {
     public static int getLongestSubarray1(int[] a, int k) {
         int N = a.length;
         long tempSum = 0;
-        //sum,Index
+        //sum,tillIndex
         Map<Long, Integer> map = new HashMap<>();
         int ans = 0;
         for (int i = 0; i < N; i++) {
@@ -297,19 +651,19 @@ public class Array {
             } else if (map.containsKey(tempSum - k)) {
                 ans = Math.max(ans, i - map.get(tempSum - k));
             }
+            //for 0 case considerations , map.putIfAbsent for take longer len
             map.putIfAbsent(tempSum, i);
         }
         return ans;
     }
 
-    //AP-10
+    //AP-3
     public static int missingNumber(int[] a, int N) {
         int xor1 = 0;
         for (int i = 0; i < N - 1; i++) {
             xor1 ^= a[i] ^ (i + 1);
         }
         xor1 ^= N;
-
         return xor1;
     }
 
@@ -317,8 +671,7 @@ public class Array {
     //array Intersection
     public static ArrayList<Integer> findArrayIntersection(ArrayList<Integer> a1, int n, ArrayList<Integer> a2, int m) {
         ArrayList<Integer> ans = new ArrayList<Integer>();
-        int i = 0;
-        int j = 0;
+        int i = 0, j = 0;
         while (i < n && j < m) {
             if (a1.get(i) < a2.get(j)) {
                 i++;
@@ -329,40 +682,24 @@ public class Array {
                 i++;
                 j++;
             }
-
         }
         return ans;
     }
 
-
+    //AP-2
+    //union of two sorted Arrays
     public static List<Integer> sortedArray(int[] a, int[] b) {
         List<Integer> ans = new ArrayList<>();
         int i = 0, j = 0;
         int last = Integer.MAX_VALUE;
         while (i < a.length && j < b.length) {
-            // if (last==a[i] && last==b[j]){i++;j++;}
             if (a[i] < b[j]) {
-                if (last != a[i]) ans.add(a[i]);
-                last = a[i];
-                i++;
-            } else {
-                if (last != b[j]) ans.add(b[j]);
-                last = b[j];
-                j++;
-            }
-        }
-
-        if (i < a.length) {
-            while (i < a.length) {
                 if (last != a[i]) {
                     ans.add(a[i]);
                     last = a[i];
                 }
                 i++;
-            }
-        }
-        if (j < b.length) {
-            while (j < b.length) {
+            } else {
                 if (last != b[j]) {
                     ans.add(b[j]);
                     last = b[j];
@@ -370,15 +707,31 @@ public class Array {
                 j++;
             }
         }
+
+        while (i < a.length) {
+            if (last != a[i]) {
+                ans.add(a[i]);
+                last = a[i];
+            }
+            i++;
+        }
+
+        while (j < b.length) {
+            if (last != b[j]) {
+                ans.add(b[j]);
+                last = b[j];
+            }
+            j++;
+        }
         return ans;
     }
 
     public static int[] moveZeros(int n, int[] a) {
-        int zero = 0;
+        int zeroIndex = 0;
         int itr = 0;
         while (itr < a.length) {
             if (a[itr] != 0) {
-                swap(zero++, itr++, a);
+                swap(zeroIndex++, itr++, a);
             } else itr++;
         }
         return a;

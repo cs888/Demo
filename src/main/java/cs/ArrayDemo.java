@@ -228,73 +228,6 @@ public class ArrayDemo {
         return false;
     }
 
-    //time complexity : n!* n
-    // n! to generate all permutation & n to iterate array elements
-    private static void permutationUsingRecursion(int ind, int[] a, ArrayList<Integer> temp, boolean[] flag) {
-        if (temp.size() == a.length) {
-            System.out.println(temp);
-            return;
-        }
-        for (int i = 0; i < a.length; i++) {
-            if (!flag[i]) {
-                temp.add(a[i]);
-                flag[i] = true;
-                permutationUsingRecursion(ind + 1, a, temp, flag);
-                temp.remove(temp.size() - 1);
-                flag[i] = false;
-            }
-        }
-    }
-
-    private static void combinationSumII(int ind, int target, ArrayList<Integer> temp, int[] a, List<List<Integer>> ans) {
-
-        if (target == 0) {
-            ans.add(new ArrayList<>(temp));
-            return;
-        }
-
-        if (ind >= a.length || target < a[ind]) {
-            return;
-        }
-
-        for (int i = ind; i < a.length; i++) {
-            if (target - a[i] >= 0 && (i == ind || a[i - 1] != a[i])) {
-                temp.add(a[i]);
-                combinationSumII(i + 1, target - a[i], temp, a, ans);
-                temp.remove(temp.size() - 1);
-            }
-        }
-    }
-
-    private static void quickSort(int l, int r, int[] a) {
-        if (l > r) return;
-        int pIndex = partition(l, r, a);
-        quickSort(l, pIndex - 1, a);
-        quickSort(pIndex + 1, r, a);
-
-    }
-
-    public static int partition(int l, int r, int[] a) {
-        int pivot = a[l];
-        //{5, 2, 8, 1, 3}
-        int start = l;
-
-        while (start < r) {
-
-            //find start where element is greater than pivot
-            while (a[start] <= pivot && start <= r) start++;
-
-            //find start where element is less than pivot
-            while (a[r] > pivot && r > l) r--;
-
-            //if path not crossed then swap
-            if (start < r)
-                swap(start, r, a);
-
-        }
-        swap(l, r, a);
-        return start;
-    }
 
     private static int partition1(int l, int r, int[] a) {
         int pivot = a[r];
@@ -305,45 +238,6 @@ public class ArrayDemo {
         }
         swap(r, l, a);
         return i;
-    }
-
-    static void mergeSort(int l, int r, int[] a) {
-        if (l >= r) return;
-        int mid = l + r >> 1;
-        mergeSort(l, mid, a);
-        mergeSort(mid + 1, r, a);
-        merge(l, mid, r, a);
-
-    }
-
-    private static void merge(int low, int mid, int high, int[] a) {
-        int p1 = low;
-        int p2 = mid + 1;
-        int[] ans = new int[high + 1];
-        int ind = 0;
-        while (p1 <= mid && p2 <= high) {
-            if (a[p1] <= a[p2]) {
-                ans[ind++] = a[p1];
-                p1++;
-            } else {
-                ans[ind++] = a[p2];
-                p2++;
-            }
-        }
-
-        while (p1 <= mid) {
-            ans[ind++] = a[p1];
-            p1++;
-        }
-
-        while (p2 <= high) {
-            ans[ind++] = a[p2];
-            p2++;
-        }
-        //override from temp to origional
-        for (int i = low; i <= high; i++) {
-            a[i] = ans[i - low];
-        }
     }
 
     public static void swap(int p1, int p2, int[] a) {

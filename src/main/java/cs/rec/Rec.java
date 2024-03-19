@@ -3,6 +3,7 @@ package cs.rec;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static cs.ArrayDemo.swap;
 
@@ -15,6 +16,9 @@ public class Rec {
                 {1, 1, 0, 0},
                 {0, 1, 1, 1}
         };
+        int p[] = new int[0];
+
+        List<List<Integer>> collect = List.of(Arrays.stream(p).boxed().toList());
 
         List<List<Integer>> graph = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
@@ -240,64 +244,230 @@ public class Rec {
         return true;
     }
 
-
-    private static void quickSort(int lo, int hi, int[] m) {
-        if (lo > hi) return;
-        int pIndex = getPivotIndex(lo, hi, m);
-        quickSort(lo, pIndex - 1, m);
-        quickSort(pIndex + 1, hi, m);
+    //RP-14
+    // Another way
+    public List<List<Integer>> permute(int[] a) {
+        List<List<Integer>> ans = new ArrayList<>();
+        f(0, ans, a);
+        return ans;
     }
 
-    //doubt
-    private static int getPivotIndex(int lo, int hi, int[] a) {
-        int pivotIndex = lo;
-        //4, 6, 2, 5, 7, 9, 1, 3
-        while (lo < hi) {
-            while (a[lo] < a[pivotIndex] && lo < hi) {
-                lo++;
-            }
-
-            while (a[hi] > a[pivotIndex] && lo < hi) {
-                hi--;
-            }
-            swap(lo, hi, a);
+    private static void f(int i, List<List<Integer>> ans, int[] a) {
+        if (i >= a.length) {
+            ans.add(Arrays.stream(a).boxed().toList());
+            return;
         }
-        //swap pivot which is lo & hi
-        swap(lo, hi, a);
-        return lo;
+        for (int j = i; j < a.length; j++) {
+            swap(i, j, a);
+            f(i + 1, ans, a);
+            swap(i, j, a);
+        }
     }
 
-    private static void mergeSort(int lo, int hi, int[] a) {
-        if (lo >= hi) return;
-        int mid = (lo + hi) / 2;
-        mergeSort(lo, mid, a);
-        mergeSort(mid + 1, hi, a);
-        mergeAndCount(lo, mid, hi, a);
+    // RP-13
+    //time complexity : n!* n
+    // n! to generate all permutation & n to iterate array elements
+    public List<List<Integer>> permute2(int[] nums) {
+        int n = nums.length;
+        List<List<Integer>> ans = new ArrayList<>();
+        pr(0, n, new boolean[n], nums, ans, new ArrayList<>());
+        return ans;
+    }
+
+    private void pr(int ind, int n, boolean[] vis, int[] a, List<List<Integer>> ans, ArrayList<Integer> temp) {
+        if (temp.size() == n) {
+            ans.add(new ArrayList<>(temp));
+            return;
+        }
+        for (int i = 0; i < n; i++) {
+            if (!vis[i]) {
+                vis[i] = true;
+                temp.add(a[i]);
+                pr(i + 1, n, vis, a, ans, temp);
+                temp.remove(temp.size() - 1);
+                vis[i] = false;
+            }
+        }
+    }
+
+    //RP-13 , without target
+    public List<List<Integer>> subsetsWithDup(int[] nums) {
+        Arrays.sort(nums);
+        List<List<Integer>> ans = new ArrayList<>();
+        f(0, nums, new ArrayList<>(), ans);
+        return ans;
+    }
+
+    // using try & pick subsequences
+    private static void f(int ind, int[] s, List<Integer> temp, List<List<Integer>> ans) {
+        ans.add(new ArrayList<>(temp));
+        for (int i = ind; i < s.length; i++) {
+            // will act as base case
+            if (i > ind && s[i] == s[i - 1])
+                continue;
+            temp.add(s[i]);
+            f(i + 1, s, temp, ans);
+            temp.remove(temp.size() - 1);
+        }
+    }
+
+    //RP-12 , without target
+    ArrayList<Integer> subsetSums(ArrayList<Integer> arr, int N) {
+
+        ArrayList<Integer> ans = new ArrayList<>();
+        f(0, N, 0, ans, arr);
+        return ans;
+    }
+
+    static void f(int i, int N, int tempSum, ArrayList<Integer> ans, ArrayList<Integer> a) {
+        if (i == N) {
+            ans.add(tempSum);
+            return;
+        }
+        //take
+        f(i + 1, N, tempSum + a.get(i), ans, a);
+
+        //not_take
+        f(i + 1, N, tempSum, ans, a);
 
     }
 
-    private static void merge(int lo, int mid, int hi, int[] a) {
+    //RP-11 ,sum with target
+    public List<List<Integer>> combinationSum2(int[] candidates, int target) {
+        Arrays.sort(candidates);
+        List<List<Integer>> ans = new ArrayList<>();
+        f1(0, target, new ArrayList<>(), candidates, ans);
+        return ans;
+    }
 
-        int[] temp = new int[hi - lo + 1];
-        int s1 = lo, s2 = mid + 1, ind = 0;
+    static void f1(int ind, int target, List<Integer> temp, int[] a, List<List<Integer>> ans) {
+        if (target == 0) {
+            ans.add(new ArrayList<>(temp));
+            return;
+        }
+        // try and pick subsequences
+        for (int i = ind; i < a.length; i++) {
+            // take first element always & test for duplicates after wards
+            if (i > ind && a[i] == a[i - 1])
+                continue;
 
-        while (s1 <= mid && s2 <= hi) {
+            if (a[i] > target)
+                break;
 
-            if (a[s1] < a[s2]) {
-                temp[ind++] = a[s1];
-                s1++;
+            temp.add(a[i]);
+            f1(i + 1, target - a[i], temp, a, ans);
+            temp.remove(temp.size() - 1);
+
+        }
+    }
+
+    //RP-10 ,sum with target
+    public List<List<Integer>> combinationSum(int[] candidates, int target) {
+
+        List<List<Integer>> result = new ArrayList<>();
+        f(0, target, new ArrayList<>(), candidates, result);
+        return result;
+    }
+
+    static void f(int ind, int sum, List<Integer> temp, int[] a, List<List<Integer>> result) {
+        if (ind == a.length) {
+            if (sum == 0) {
+                result.add(new ArrayList<>(temp));
+            }
+            return;
+        }
+
+        // take index ,can take same index multiple times
+        if (sum - a[ind] >= 0) {
+            temp.add(a[ind]);
+            f(ind, sum - a[ind], temp, a, result);
+            temp.remove(Integer.valueOf(a[ind]));
+        }
+
+        // not take index
+        f(ind + 1, sum, temp, a, result);
+
+    }
+
+
+    //RP - 9
+    public static List<Integer> quickSort(List<Integer> arr) {
+        int a[] = arr.stream().mapToInt(x -> x).toArray();
+        qs(0, a.length - 1, a);
+        return Arrays.stream(a).boxed().collect(Collectors.toList());
+    }
+
+    static void qs(int lo, int hi, int a[]) {
+        if (lo >= hi)
+            return;
+
+        int pIndex = placeAndGetPIndex(lo, hi, a);
+        qs(lo, pIndex - 1, a);
+        qs(pIndex + 1, hi, a);
+
+    }
+
+    static int placeAndGetPIndex(int lo, int hi, int[] a) {
+        int pivot = a[lo];
+        int i = lo, j = hi;
+
+        while (i < j) {
+            i = lo;
+            j = hi;
+            // note i<=hi
+            while (i <= hi && a[i] <= pivot) {
+                i++;
+            }
+            // note j>=lo
+            while (j >= lo && a[j] > pivot) {
+                j--;
+            }
+            if (i < j)
+                swap(i, j, a);
+
+        }
+        swap(lo, j, a);
+        return j;
+    }
+
+    static void swap(int p1, int p2, int[] a) {
+        int temp = a[p2];
+        a[p2] = a[p1];
+        a[p1] = temp;
+    }
+
+    //RP-8
+    public static void mergeSort(int[] arr, int n) {
+        mergeSort(0, n - 1, arr);
+    }
+
+    static void mergeSort(int l, int r, int[] arr) {
+        if (l >= r)
+            return;
+        int mid = l + r >> 1;
+        mergeSort(l, mid, arr);
+        mergeSort(mid + 1, r, arr);
+        merge(l, mid, r, arr);
+    }
+
+    static void merge(int l, int mid, int r, int[] arr) {
+        int[] temp = new int[r - l + 1];
+        int ind = 0, lStart = l, rStart = mid + 1;
+        while (lStart <= mid && rStart <= r) {
+            if (arr[lStart] < arr[rStart]) {
+                temp[ind++] = arr[lStart++];
             } else {
-                temp[ind++] = a[s2];
-                s2++;
+                temp[ind++] = arr[rStart++];
             }
         }
-        while (s1 <= mid) temp[ind++] = a[s1++];
+        while (lStart <= mid)
+            temp[ind++] = arr[lStart++];
 
-        while (s2 <= hi) temp[ind++] = a[s2++];
+        while (rStart <= r)
+            temp[ind++] = arr[rStart++];
 
-        //copy temp to main array
-        for (int i = 0; i < temp.length; i++) {
-            a[lo++] = temp[i];
+        for (int i = l, j = 0; i <= r; i++) {
+            arr[i] = temp[j++];
         }
     }
 

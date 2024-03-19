@@ -14,18 +14,18 @@ public class BinarySearch {
 
     //BS-27
     public static int findMedian(int a[][], int m, int n) {
-        int low=Integer.MAX_VALUE,high=Integer.MIN_VALUE;
-        for (int i = 0; i <m ; i++) {
-            low=Math.min(low,a[i][0]);
-            high=Math.max(high,a[i][n-1]);
+        int low = Integer.MAX_VALUE, high = Integer.MIN_VALUE;
+        for (int i = 0; i < m; i++) {
+            low = Math.min(low, a[i][0]);
+            high = Math.max(high, a[i][n - 1]);
         }
 
-        int req=(n*m)/2;
-        while (low<=high){
-            int mid=low+high>>1;
-            int count=getCountOfItemLessthanEqualMid(mid,a);
-            if(count<=req) low=mid+1;
-            else high=mid-1;
+        int reqCount = (n * m) / 2;
+        while (low <= high) {
+            int mid = low + high >> 1;
+            int count = getCountOfItemLessthanEqualMid(mid, a);
+            if (count <= reqCount) low = mid + 1;
+            else high = mid - 1;
         }
         return low;
     }
@@ -47,14 +47,14 @@ public class BinarySearch {
             int left = (mid - 1 >= 0) ? g[maxRowIndex][mid - 1] : -1;
             int right = (mid + 1) < m ? g[maxRowIndex][mid + 1] : -1;
             if (left < g[maxRowIndex][mid] && g[maxRowIndex][mid] > right)
-                return new int[] { maxRowIndex, mid };
+                return new int[]{maxRowIndex, mid};
             else if (left > g[maxRowIndex][mid])
                 high = mid - 1;
             else
                 low = mid + 1;
         }
 
-        return new int[] { -1, -1 };
+        return new int[]{-1, -1};
     }
 
     static int getMaxInCol(int mid, int[][] g, int totalRow) {
@@ -523,34 +523,33 @@ public class BinarySearch {
     //BS-10
     public static int sqrtN(long N) {
 
-        long l = 1, r = N;
-
-        while (l <= r) {
-            long mid = l + r >> 1;
-            if (mid > (N / mid)) r = mid - 1;
-            else l = mid + 1;
+        long lo = 1, hi = N;
+        while (lo <= hi) {
+            long mid = lo + hi >> 1;
+            if (mid > (N / mid)) hi = mid - 1;
+            else lo = mid + 1;
         }
-        return (int) r;
+        return (int) hi;
     }
 
     //BS-9
     //use concept of increasing slope
     // will work both for single & multiple peak
-    public static int findPeakElement(ArrayList<Integer> arr) {
-        int[] a = arr.stream().mapToInt(x -> x).toArray();
-        if (a[0] > a[1]) return 0;
-        int len = a.length;
-        if (a[len - 2] < a[len - 1]) return len - 1;
-        int l = 1, r = len - 2;
-        while (l <= r) {
-            int mid = l + r >> 1;
+    public static int findPeakElement(ArrayList<Integer> a) {
+        int len = a.size();
+        if(len==1) return 0;
+        if (a.get(0) > a.get(1)) return 0;
+        if (a.get(len - 2) < a.get(len - 1)) return len - 1;
+        int lo = 1, hi = len - 2;
+        while (lo <= hi) {
+            int mid = lo + hi >> 1;
             //if peak element
-            if (a[mid - 1] < a[mid] && a[mid] > a[mid + 1]) return mid;
-                //if in increasing slope
-                // a[mid-1]<a[mid] or a[mid]<a[mid+1] will also works
-            else if (a[mid - 1] < a[mid] && a[mid] < a[mid + 1]) {
-                l = mid + 1;
-            } else r = mid - 1;
+            if (a.get(mid - 1) < a.get(mid) && a.get(mid) > a.get(mid + 1)) return mid;
+                //if it in increasing slope
+                // a[mid-1]<a[mid] or/and a[mid]<a[mid+1] will also works
+            else if (a.get(mid - 1) < a.get(mid)) {
+                lo = mid + 1;
+            } else hi = mid - 1;
         }
         return -1;
     }
@@ -569,6 +568,7 @@ public class BinarySearch {
         while (l <= r) {
             int mid = l + r >> 1;
             if (a[mid - 1] != a[mid] && a[mid] != a[mid + 1]) return a[mid];
+                // i am on left side
             else if ((mid % 2 == 0 && a[mid] == a[mid + 1]) || (mid % 2 != 0 && a[mid] == a[mid - 1])) {
                 l = mid + 1;
             } else r = mid - 1;
@@ -578,99 +578,186 @@ public class BinarySearch {
 
     //BS-7 Or,index of minimum Element in array
     public static int findKRotation(int[] a) {
-        int l = 0, r = a.length - 1;
-        int ans = Integer.MAX_VALUE;
-        int index = -1;
-        while (l <= r) {
-            int mid = l + r >> 1;
-            //left is sorted
-            if (a[l] <= a[mid]) {
-                if (ans > a[l]) {
-                    ans = a[l];
-                    ;
+        int lo = 0, hi = a.length - 1;
+        int min = Integer.MAX_VALUE, minIndex = 0;
+        while (lo <= hi) {
+            int mid = lo + hi >> 1;
+            // lef is sorted
+            if (a[lo] <= a[mid]) {
+                if (min > a[lo]) {
+                    minIndex = lo;
+                    min = a[lo];
                 }
-                l = mid + 1;
+                lo = mid + 1;
             }
-            //right is sorted
+            // right is sorted
             else {
-                if (ans > a[mid]) {
-                    ans = a[mid];
-                    index = mid;
+                if (min > a[mid]) {
+                    minIndex = mid;
+                    min = a[mid];
                 }
-                r = mid - 1;
+                hi = mid - 1;
             }
         }
-        return index;
+        return minIndex;
     }
 
     //BS-6
     public static int findMin(int[] a) {
 
         int l = 0, r = a.length - 1;
-        int ans = Integer.MAX_VALUE;
+        int min = Integer.MAX_VALUE;
         while (l <= r) {
             int mid = l + r >> 1;
             //left is sorted
             if (a[l] <= a[mid]) {
-                ans = Math.min(ans, a[l]);
+                min = Math.min(min, a[l]);
                 l = mid + 1;
             }
             //right is sorted
             else {
-                ans = Math.min(ans, a[mid]);
+                min = Math.min(min, a[mid]);
                 r = mid - 1;
             }
         }
-        return ans;
+        return min;
     }
 
     //BS-5
+    public static boolean searchInARotatedSortedArrayII(int[] A, int key) {
+        return search(A, key) == -1 ? false : true;
+    }
+
     public static int search(int[] a, int target) {
-        // int[] a = arr.stream().mapToInt(x -> x).toArray();
-        int l = 0;
-        int r = a.length - 1;
-        while (l <= r) {
-            int mid = l + r >> 1;
-            if (l != r && a[l] == a[mid] && a[mid] == a[r]) {
-                l++;
-                r--;
+        int lo = 0, hi = a.length - 1;
+        while (lo <= hi) {
+            int mid = lo + hi >> 1;
+            if (a[mid] == target)
+                return mid;
+            if (a[lo] == a[mid] && a[mid] == a[hi]) {
+                lo++;
+                hi--;
                 continue;
-            } else if (a[mid] == target) return mid;
-                //left is sorted
-            else if (a[l] <= a[mid]) {
-                if (a[l] <= target && target <= a[mid]) r = mid - 1;
-                else l = mid + 1;
             }
-            //right is sorted
+            // left is sorted
+            else if (a[lo] <= a[mid]) {
+                if (a[lo] <= target && target < a[mid])
+                    hi = mid - 1;
+                else
+                    lo = mid + 1;
+            }
+            // right is sorted
             else {
-                if (a[mid] < target && target <= a[r]) l = mid + 1;
-                else r = mid - 1;
+                if (a[mid] < target && target <= a[hi])
+                    lo = mid + 1;
+                else
+                    hi = mid - 1;
             }
         }
         return -1;
     }
 
     //BS-4
-    public static int search(ArrayList<Integer> arr, int n, int target) {
+    public static int search(ArrayList<Integer> arr, int n, int k) {
+        return search(arr, k);
+    }
+
+    public static int search(ArrayList<Integer> arr, int target) {
         int[] a = arr.stream().mapToInt(x -> x).toArray();
-        int l = 0;
-        int r = a.length - 1;
-        while (l <= r) {
-            int mid = l + r >> 1;
-            if (a[mid] == target) return mid;
-                //left is sorted
-            else if (a[l] <= a[mid]) {
-                if (a[mid] < target) l = mid + 1;
-                else r = mid - 1;
+        int lo = 0, hi = a.length - 1;
+        while (lo <= hi) {
+            int mid = lo + hi >> 1;
+            if (a[mid] == target)
+                return mid;
+                // left is sorted
+            else if (a[lo] <= a[mid]) {
+                if (a[lo] <= target && target < a[mid])
+                    hi = mid - 1;
+                else
+                    lo = mid + 1;
             }
-            //right is sorted
+            // right is sorted
             else {
-                if (a[mid] < target) l = mid + 1;
-                else r = mid - 1;
+                if (a[mid] < target && target <= a[hi])
+                    lo = mid + 1;
+                else
+                    hi = mid - 1;
             }
         }
         return -1;
+    }
 
+    //BS-3-2
+    public static int count(int arr[], int n, int k) {
+        int first = first(arr, n, k);
+        int last = last(arr, n, k);
+        return last - first;
+    }
+
+    static int first(int[] arr, int n, int k) {
+        int lo = 0, hi = n - 1;
+
+        // same as lowerbound
+        while (lo <= hi) {
+            int mid = lo + hi >> 1;
+            if (arr[mid] >= k)
+                hi = mid - 1;
+            else
+                lo = mid + 1;
+        }
+        return lo;
+    }
+
+    // upper bound
+    static int last(int[] arr, int n, int k) {
+        int lo = 0, hi = n - 1;
+
+        while (lo <= hi) {
+            int mid = lo + hi >> 1;
+            if (arr[mid] > k)
+                hi = mid - 1;
+            else
+                lo = mid + 1;
+        }
+        return lo;
+    }
+
+    //BS-3
+    public static int[] firstAndLastPosition(ArrayList<Integer> arr, int n, int k) {
+        int first = first(arr, n, k);
+        if (arr.get(first) != k || first == n)
+            return new int[]{-1, -1};
+        int last = last(arr, n, k);
+        return new int[]{first, last - 1};
+    }
+
+    static int first(ArrayList<Integer> arr, int n, int k) {
+        int lo = 0, hi = n - 1;
+
+        // same as lowerbound
+        while (lo <= hi) {
+            int mid = lo + hi >> 1;
+            if (arr.get(mid) >= k)
+                hi = mid - 1;
+            else
+                lo = mid + 1;
+        }
+        return lo;
+    }
+
+
+    //upper bound
+    static int last(ArrayList<Integer> arr, int n, int k) {
+        int lo = 0, hi = n - 1;
+
+        while (lo <= hi) {
+            int mid = lo + hi >> 1;
+            if (arr.get(mid) > k)
+                hi = mid - 1;
+            else
+                lo = mid + 1;
+        }
+        return lo;
     }
 
     //BS-2
@@ -723,22 +810,21 @@ public class BinarySearch {
     }
 
 
-    // lower bound is defined as smallest index such that a[i]>=target
+    // lower bound is defined as smallest index or first index such that a[i]>=target
     //is same as ceil but ans=-1 as default
     private static int lowerBound(int[] a, int target) {
 
-        int l = 0;
-        int r = a.length - 1;
+        int lo = 0;
+        int hi = a.length - 1;
+        //arr size by default
         int ans = a.length;
-        while (l <= r) {
-            int mid = l + r >> 1;
+        while (lo <= hi) {
+            int mid = lo + hi >> 1;
             if (a[mid] >= target) {
                 ans = mid;
-                r = mid - 1;
-            } else l = mid + 1;
+                hi = mid - 1;
+            } else lo = mid + 1;
         }
         return ans;
     }
-
-
 }
