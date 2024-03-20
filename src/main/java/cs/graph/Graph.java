@@ -1681,12 +1681,13 @@ public class Graph {
         Queue<Integer> queue = new ArrayDeque<>();
         boolean[] vis = new boolean[adj.size()];
         queue.add(startNode);
+        vis[startNode]=true;
         while (!queue.isEmpty()) {
-            Integer temp = queue.poll();
-            if (!vis[temp]) {
-                vis[temp] = true;
-                System.out.print(temp + " ");
-                for (int neighbour : adj.get(temp)) {
+            Integer node = queue.poll();
+            if (!vis[node]) {
+                vis[node] = true;
+                System.out.print(node + " ");
+                for (int neighbour : adj.get(node)) {
                     if (!vis[neighbour]) {
                         queue.add(neighbour);
                     }

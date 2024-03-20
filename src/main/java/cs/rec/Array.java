@@ -598,21 +598,38 @@ public class Array {
         return a;
     }
 
-
     //AP -8
     public static long maxSubarraySum(int[] a, int n) {
-        //start & end will give array total length or start index & end index
-        int ans = 0, tempsum = 0, start = -1, end = -1;
-        for (int i = 0; i < a.length; i++) {
-            if (tempsum == 0) start = i;
-            tempsum += a[i];
-            if (tempsum > ans) {
-                ans = tempsum;
-                end = i;
-            }
-            if (tempsum < 0) tempsum = 0;
+        long maxSum = 0, tempMaxsum = 0;
+        for (int i = 0; i < n; i++) {
+            tempMaxsum += a[i];
+            maxSum = Math.max(maxSum, tempMaxsum);
+            if (tempMaxsum < 0) tempMaxsum = 0;
         }
-        return ans;
+        return maxSum;
+    }
+
+    //AP-7
+    public static int majorityElementRSingleArray(int[] a) {
+        int g = 0, count = 0;
+        for (int i = 0; i < a.length; i++) {
+            if (count == 0) {
+                count++;
+                g = a[i];
+            } else if (a[i] == g) count++;
+            else count--;
+        }
+        return g;
+    }
+
+    //AP-6
+    public void sortColors(int[] a) {
+        int lo = 0, mid = 0, hi = a.length - 1;
+        while (mid <= hi) {
+            if (a[mid] == 0) swap(lo++, mid++, a);
+            else if (a[mid] == 2) swap(hi--, mid, a);
+            else mid++;
+        }
     }
 
     //  for only postive & zeros in array
