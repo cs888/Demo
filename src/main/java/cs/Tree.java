@@ -338,11 +338,11 @@ public class Tree {
         return ceil;
     }
 
-    private static TreeNode bstSearch(TreeNode node, int val) {
+    private static TreeNode bstSearch(TreeNode node, int target) {
         if (node == null) return node;
-        if (node.data == val) return node;
-        else if (node.data < val) return bstSearch(node.right, val);
-        else return bstSearch(node.left, val);
+        if (node.data == target) return node;
+        else if (node.data < target) return bstSearch(node.right, target);
+        else return bstSearch(node.left, target);
     }
 
     //1 2 13 4 5
@@ -409,9 +409,7 @@ public class Tree {
                 cur = cur.right;
             } else {//case - 2
                 TreeNode tempPredCessor = cur.left;
-                while (tempPredCessor != null && tempPredCessor.right != null &&
-                        //for already having thread
-                        tempPredCessor.right != cur) {
+                while (tempPredCessor.right != null || tempPredCessor.right != cur) {
                     tempPredCessor = tempPredCessor.right;
                 }
                 //add link
@@ -526,6 +524,7 @@ public class Tree {
         if (node == null) return 0;
         int lh = maxDepthLeft(node.left);
         int rh = maxDepthRight(node.right);
+        // lh+1 if it is edge based
         if (lh == rh) return (2 << lh) - 1;
         else return 1 + countTotalNodes(node.left) + countTotalNodes(node.right);
     }
@@ -654,14 +653,17 @@ public class Tree {
     private static void childSumProperty(TreeNode node) {
         if (node == null) return;
 
-        int sum_down = 0;
-        if (node.left != null) sum_down += node.left.data;
-        if (node.right != null) sum_down += node.right.data;
+        int childSum = 0;
+        if (node.left != null) childSum += node.left.data;
+        if (node.right != null) childSum += node.right.data;
 
         //if sum down is lesser than copy the value
-        if (node.data >= sum_down) {
+        if (node.data >= childSum) {
             if (node.left != null) node.left.data = node.data;
             if (node.right != null) node.right.data = node.data;
+        }
+        else {
+            node.data =  childSum;
         }
         childSumProperty(node.left);
         childSumProperty(node.right);
@@ -669,7 +671,7 @@ public class Tree {
         int sum_up = 0;
         if (node.left != null) sum_up += node.left.data;
         if (node.right != null) sum_up += node.right.data;
-        node.data = sum_up;
+        if(node.left!=null || node.right!=null)node.data = sum_up;
 
     }
 
@@ -694,7 +696,7 @@ public class Tree {
             for (int i = 0; i < size; i++) {
                 Pair temp = queue.poll();
                 if (i == 0) left = temp.n;
-                if (i == size - 1) right = temp.n;
+                right = temp.n;
                 if (temp.node.left != null) {
                     queue.add(new Pair(temp.node.left, 2 * (temp.n) + 1 - left));
                 }
@@ -726,22 +728,20 @@ public class Tree {
 
     //video -26
     // TODO
-    private static void printRootToNodePath(TreeNode node, int n, List<Integer> ans) {
-        if (node == null) return;
+    private static boolean printRootToNodePath(TreeNode node, int n, List<Integer> ans) {
+        if (node == null) return false;
 
         ans.add(node.data);
         if (node.data == n) {
             System.out.println(ans);
-            return;
+            return true;
         }
-        if (node.data == n) {
-            System.out.println(ans);
-            return;
-        }
-        printRootToNodePath(node.left, n, ans);
-        printRootToNodePath(node.right, n, ans);
+
+        if(printRootToNodePath(node.left, n, ans)) return true;
+        if(printRootToNodePath(node.right, n, ans)) return true;
         ans.remove(ans.size() - 1);
 
+        return false;
     }
 
     //video - 26
@@ -749,6 +749,7 @@ public class Tree {
         // if(left==null && right!=null) return false
         // if(left!=null && right==null) return false
         //if(left==null && right==null) return true
+        //if(left!null && right!null & left==right) return true
         if (left == null || right == null) return left == right;
         if (left.data != right.data) return false;
         return isSymmetrical(left.left, right.right)
@@ -772,7 +773,9 @@ public class Tree {
         rightView(node.left, level + 1, ans);
     }
 
-    //map.values().stream().collect(Collectors.toList())
+    //map.values().stream().collect( .toList())
+    // recursive order will not work , use levelOrder Travesal
+    // for recursive need to maintain height as well
     private static void bottomView(TreeNode node, int val, TreeMap<Integer, Integer> map) {
         if (node == null) return;
         map.put(val, node.data);
@@ -785,6 +788,7 @@ public class Tree {
     //map.values().stream().collect(Collectors.toList())
     //first element in verticalTraverSal gives top View
     //TC - O(n)
+    //use while loop or level order traversal since recursive will give change order
     private static void topView(TreeNode node, int val, TreeMap<Integer, Integer> map) {
         if (node == null) return;
         map.putIfAbsent(val, node.data);
@@ -796,6 +800,7 @@ public class Tree {
     private static void verticalTraversal(TreeNode node, int val, TreeMap<Integer, List<Integer>> map) {
         if (node == null) return;
         verticalTraversal(node.left, val - 1, map);
+        //in short   map.computeIfAbsent(val,k-> new ArrayList<>()).add(node.data);
         List<Integer> list = map.getOrDefault(val, new ArrayList<>());
         list.add(node.data);
         map.put(val, list);
@@ -807,46 +812,52 @@ public class Tree {
     //video - 20
     private static void boundryTraversal(TreeNode node) {
         List<Integer> left = new ArrayList<>();
-        getLeft(node, left);
+        addLeftBoundary(node, left);
         List<Integer> leafList = new ArrayList<>();
-        getLeaf(node, leafList);
+        addLeaves(node, leafList);
         ArrayList<Integer> right = new ArrayList<>();
-        getRight(node.right, right);
-        Collections.reverse(right);
+        addRightBoundary(node.right, right);
 
         List<Integer> collect = Stream.of(left, leafList, right).flatMap(x -> x.stream()).collect(Collectors.toList());
         System.out.println(collect);
 
     }
 
-    private static void getLeaf(TreeNode node, List<Integer> ans) {
-        if (node == null) return;
-        getLeaf(node.left, ans);
-        if (node.left == null && node.right == null) ans.add(node.data);
-        getLeaf(node.right, ans);
+    //do inOrder
+    private static void addLeaves(TreeNode node, List<Integer> res) {
+        if (isLeaf(node)) {
+            res.add(node.data);
+            return;
+        }
+        if (node.left != null) addLeaves(node.left, res);
+        if (node.right != null) addLeaves(node.right, res);
     }
 
-    private static void getLeft(TreeNode node, List<Integer> ans) {
-        if (node.left == null && node.right == null) return;
-        if (node.left != null) {
-            ans.add(node.data);
-            getLeft(node.left, ans);
-        }
-        if (node.left == null && node.right != null) {
-            ans.add(node.data);
-            getLeft(node.right, ans);
+    private static boolean isLeaf(TreeNode node) {
+        return node.left == null && node.right == null;
+    }
+    private static void addLeftBoundary(TreeNode node, List<Integer> res) {
+        while (node != null) {
+            if (!isLeaf(node)) res.add(node.data);
+            if (node.left != null)
+                node = node.left;
+            else
+                node = node.right;
         }
     }
 
-    private static void getRight(TreeNode node, ArrayList<Integer> ans) {
-        if (node.left == null && node.right == null) return;
-        if (node.right != null) {
-            ans.add(node.data);
-            getRight(node.right, ans);
+    private static void addRightBoundary(TreeNode node, List<Integer> res) {
+        List<Integer> temp = new ArrayList<>();
+        while (node != null) {
+            if (!isLeaf(node)) temp.add(node.data);
+            if (node.right != null)
+                node = node.right;
+            else
+                node = node.left;
         }
-        if (node.right == null && node.left != null) {
-            ans.add(node.data);
-            getRight(node.left, ans);
+        // add in reverse order
+        for (int i = temp.size() - 1; i >= 0; i--) {
+            res.add(temp.get(i));
         }
     }
 
@@ -916,6 +927,7 @@ public class Tree {
         int rh = maxPathSum(node.right, res);
         if (rh < 0) rh = 0;
         res[0] = Math.max(res[0], node.data + lh + rh);
+        //note next line
         return node.data + Math.max(lh, rh);
 
     }
@@ -951,6 +963,7 @@ public class Tree {
 
     //TC - > O(n)
     //video - 14
+    // max tree height or depth or number of nodes
     private static int maxDepth(TreeNode node) {
         if (node == null) return 0;
         int lh = maxDepth(node.left);
@@ -1008,6 +1021,8 @@ public class Tree {
             } else {
                 TreeNode temp = stack.peek().right;
                 if (temp == null) {
+                    temp = stack.pop();
+                    ans.add(temp.data);
                     while (!stack.isEmpty() && stack.peek().right == temp) {
                         //pop
                         temp = stack.pop();
@@ -1056,15 +1071,17 @@ public class Tree {
 
     //TC-> O(n)
     //video -9
-    private static void preOrderIterative(TreeNode root) {
+    private static List<Integer> preOrderIterative(TreeNode root) {
         Stack<TreeNode> stack = new Stack<>();
         stack.add(root);
+        List<Integer> ans = new LinkedList<>();
         while (!stack.isEmpty()) {
             TreeNode node = stack.pop();
-            System.out.print(node.data + " ");
+            ans.add(node.data);
             if (node.right != null) stack.add(node.right);
             if (node.left != null) stack.add(node.left);
         }
+        return ans;
     }
 
     //LRN
@@ -1100,6 +1117,15 @@ public class Tree {
         }
     }
 
+    //postorder
+    private static void postOrder(TreeNode t) {
+        if (t == null) return;
+        postOrder(t.left);
+        postOrder(t.right);
+        System.out.println(t.data);
+
+    }
+
     //inOrder
     private static void inOrder(TreeNode t) {
         if (t == null) return;
@@ -1108,13 +1134,12 @@ public class Tree {
         inOrder(t.right);
     }
 
-    //postorder
-    private static void postOrder(TreeNode t) {
-        if (t == null) return;
-        postOrder(t.left);
-        postOrder(t.right);
-        System.out.println(t.data);
-
+    // 1,2,4,5,6,3,7,8,9,10
+    private static void preOrderTraversal(TreeNode root) {
+        if(root ==null) return;
+        System.out.print(root.data+" ");
+        preOrderTraversal(root.left);
+        preOrderTraversal(root.right);
     }
 }
 

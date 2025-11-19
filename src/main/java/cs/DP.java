@@ -13,10 +13,12 @@ public class DP {
                 {3, 4, 2, 2},
                 {5, 6, 3, 5}
         };
-        int a1[] = {2, 5, 7, 8, 10};
+        int a1[] = {1,2,3,4};
         int target = 7;
         boolean dp[][] = new boolean[a1.length + 1][target + 2];
-
+        int dpp[] = new int[7];
+        Arrays.fill(dpp, -1);
+        System.out.println(fibBottomUP(6, dpp));
     }
 
     //DP - 56
@@ -157,6 +159,7 @@ public class DP {
 
     //video - 53
     //mininum number of partitions required for string
+    // fron partion
     private static int pallindromePartitioning(int i, char[] s) {
         if (i >= s.length) return 0;
         int mini = Integer.MAX_VALUE;
@@ -250,6 +253,7 @@ public class DP {
     }
 
     //video -52
+    // return (0,a.length-1,true,a)
     private static int evalTrue(int i, int j, boolean requireTrue, char[] a) {
         if (i > j) return 0;
         if (i == j) {
@@ -308,7 +312,7 @@ public class DP {
 
     //video - 50
     //aapend 1 to start & end
-
+    // start from bottom
     /*int [] cost=new int[a.length+2];
         System.arraycopy(a,0,cost,1,a.length);
     cost[0]=1;
@@ -318,7 +322,9 @@ public class DP {
         if (i > j) return 0;
         int maxi = Integer.MIN_VALUE;
         for (int ind = i; ind <= j; ind++) {
-            int max = cost[i - 1] * cost[ind] * cost[j + 1] + burstBaloon(i, ind - 1, cost) + burstBaloon(ind + 1, j, cost);
+            int max = cost[i - 1] * cost[ind] * cost[j + 1]
+                    + burstBaloon(i, ind - 1, cost)
+                    + burstBaloon(ind + 1, j, cost);
             maxi = Math.max(maxi, max);
         }
         return maxi;
@@ -416,8 +422,7 @@ public class DP {
         int mini = Integer.MAX_VALUE;
         //till <=j-1 because we are taking k+1 further
         for (int k = i; k <= j - 1; k++) {
-            int min = a[i - 1] * a[j] * a[k];
-            min += mm(i, k, a) + mm(k + 1, j, a);
+            int min = a[i - 1] * a[j] * a[k]+ mm(i, k, a) + mm(k + 1, j, a);
             mini = Math.min(mini, min);
         }
         return mini;
@@ -437,10 +442,11 @@ public class DP {
                 if (a[prev] < a[i] && dp[i] < 1 + dp[prev]) {
                     dp[i] = 1 + dp[prev];
                     //inherit from prev
+                    // if get attached len remains of prev
                     count[i] = count[prev];
                 }
                 //update count array condition
-                else if (a[prev] < a[i] && dp[i] == dp[prev]) {
+                else if (a[prev] < a[i] && dp[i] == dp[prev]+1) {
                     count[i] = count[i] + count[prev];
                 }
             }
@@ -510,6 +516,7 @@ public class DP {
     }
 
     private static boolean compare(int i, int prev, String[] a) {
+        //a[i] length is greater
         if (a[i].length() - a[prev].length() != 1) return false;
         int start1 = 0;
         int start2 = 0;
@@ -580,7 +587,7 @@ public class DP {
         int maxValueIndex = -1;
         for (int i = 0; i < a.length; i++) {
             for (int prev = 0; prev < i; prev++) {
-                if (a[prev] < a[i] && dp[prev] + 1 > a[i]) {
+                if (a[prev] < a[i] && dp[prev] + 1 > dp[i]) {
                     dp[i] = 1 + dp[prev];
                     parent[i] = prev;
 
@@ -773,6 +780,7 @@ public class DP {
     }
 
     //dp - 37
+    // at most k txn
     private static int stock4(int i, int buy, int cap, int[] a) {
         if (i >= a.length) return 0;
         if (cap == 0) return 0;
@@ -804,8 +812,10 @@ public class DP {
     }
 
     // video - 36
+    //1 txn at at time
     private static int stock2(int i, int buy, int[] a) {
         if (i >= a.length) return 0;
+
         if (buy == 1) return Math.max(-a[i] + stock2(i + 1, 0, a), 0 + stock2(i + 1, buy, a));
         else
             return Math.max(a[i] + stock2(i + 1, 1, a), stock2(i + 1, buy, a));
@@ -884,7 +894,7 @@ public class DP {
             return wild(i - 1, j - 1, t, p);
         else if (p[j] == '*')
             return wild(i - 1, j, t, p) || wild(i, j - 1, t, p);
-         return false;
+        return false;
 
     }
 
@@ -967,6 +977,7 @@ public class DP {
         if (i2 < 0) return 1;
         if (i1 < 0) return 0;
         if (s[i1] == t[i2])
+            // if mathcing i can take or not take
             return dss(i1 - 1, i2 - 1, s, t) + dss(i1 - 1, i2, s, t);
         else
             return dss(i1 - 1, i2, s, t);
@@ -1590,16 +1601,17 @@ public class DP {
 
 
     //another way using manual loop
+    //TODO::doubt not working
     private static int cherry2(int i, int j1, int j2, int[][] g) {
         if (j1 < 0 || j2 < 0 || j1 >= g[0].length || j2 >= g[0].length || i >= g.length) return 0;
 
         int max = Integer.MIN_VALUE;
         for (int bob = -1; bob <= 1; bob++) {
             for (int alice = -1; alice <= 1; alice++) {
-                int maxi = 0;
-                if (bob != alice) maxi = g[i][j1] + g[i][j2] + cherry2(i + 1, bob, alice, g);
-                else maxi = g[i][j2] + cherry2(i + 1, bob, alice, g);
-                max = Math.max(maxi, max);
+                int val = g[i][j1] + g[i][j2];
+                if (bob == alice) val = g[i][j1];
+                int tmep=val+  cherry2(i + 1, j1+bob, j2+alice, g);
+                max = Math.max(tmep, max);
             }
         }
 
@@ -1609,11 +1621,14 @@ public class DP {
     private static int cherry(int i, int j1, int j2, int[][] g) {
         if (j1 < 0 || j2 < 0 || j1 >= g[0].length || j2 >= g[0].length || i >= g.length) return 0;
 
-        int alice = Math.max(Math.max(cherry(i + 1, j1 - 1, j2, g), cherry(i + 1, j1, j2, g)),
-                cherry(i + 1, j1 + 1, j2, g));
+        int alice = Math.max(Math.max(cherry(i + 1, j1 - 1, j2, g),
+                                      cherry(i + 1, j1, j2, g)),
+                                      cherry(i + 1, j1 + 1, j2, g));
 
-        int bob = Math.max(Math.max(cherry(i + 1, j1, j2 - 1, g), cherry(i + 1, j1, j2, g)),
-                cherry(i + 1, j1, j2 + 1, g));
+        int bob =   Math.max(Math.max(
+                        cherry(i + 1, j1, j2 - 1, g),
+                        cherry(i + 1, j1, j2, g)),
+                        cherry(i + 1, j1, j2 + 1, g));
 
         if (j1 == j2) return g[i][j1] + Math.max(alice, bob);
         else return g[i][j1] + g[i][j2] + Math.max(alice, bob);
@@ -1744,6 +1759,7 @@ public class DP {
         return dp[i][j] = Math.min(up, left);
     }
 
+    //DP -9
     private static int minPathSum(int i, int j, int[][] g) {
         if (i == 0 && j == 0) return g[i][j];
         //return very big number so that that calculated path sum is ruled out
@@ -1753,20 +1769,17 @@ public class DP {
         return Math.min(up, left);
     }
 
-    private static int upathBottomUp(int[][] a) {
+    private static int upathBottomUpOptimized(int[][] a) {
         int m = a.length;
         int n = a[0].length;
-        int dp[][] = new int[m][n];
         int[] prev = new int[a.length];
         int[] cur = new int[a.length];
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
                 if (i == 0 && j == 0) cur[j] = 1;
                 else {
-                    int up = 0;
-                    if (i > 0) up += prev[j];
-                    int left = 0;
-                    if (j > 0) left += cur[j - 1];
+                    int up = 0;if (i > 0) up += prev[j];
+                    int left = 0;if (j > 0) left += cur[j - 1];
                     cur[j] = up + left;
                 }
             }
@@ -1775,12 +1788,27 @@ public class DP {
         return prev[n - 1];
     }
 
-    private static int upathBottomUp(int i, int j, int[][] a, int[][] dp) {
+    private static int upathBottomUp(int i1, int j1, int[][] dp) {
+
+        for (int i = 0; i <= i1; i++) {
+            for (int j = 0; j <= j1; j++) {
+                if (i == 0 && j == 0) dp[0][0] = 1;
+                else {
+                    int up = 0; if(i>0)up+=dp[i - 1][ j];
+                    int left = 0; if(j>0)up+=dp[i] [j - 1];
+                    dp[i][j] = up + left;
+                }
+            }
+        }
+        return dp[i1][j1];
+    }
+
+    private static int upathDp(int i, int j, int[][] a, int[][] dp) {
         if (i == 0 && j == 0) return 1;
         if (i < 0 || j < 0) return 0;
         if (dp[i][j] != -1) return dp[i][j];
-        int up = upathBottomUp(i - 1, j, a, dp);
-        int left = upathBottomUp(i, j - 1, a, dp);
+        int up = upathDp(i - 1, j, a, dp);
+        int left = upathDp(i, j - 1, a, dp);
         return dp[i][j] = up + left;
 
     }
@@ -1796,7 +1824,8 @@ public class DP {
 
     }
 
-    private static int ninjaBottomUp(int prev, int[][] a) {
+    //need to correct this , not working
+    private static int ninjaBottomUpOptimized(int prev, int[][] a) {
         int pre[] = new int[a.length];
         int cur[] = new int[a.length];
 
@@ -1812,23 +1841,61 @@ public class DP {
             pre = cur;
 
         }
-        return pre[0];
+        return pre[prev];
 
+    }
+
+    //TODO: giving error
+    private static int ninjaBottomUp1(int i1, int prev1, int[][] a) {
+
+        int []prevv=new int[4];
+        int[] cur=new int[4];
+
+        for (int i = 0; i <= i1; i++) {
+            for (int prev = 0; prev <=prev1; prev++) {
+                int ans = Integer.MIN_VALUE;
+                for (int j = 0; j < 3; j++) {
+                    if (prev != j) {
+                        int temp_ans = a[i][j]; if (i > 0) temp_ans += prevv[j];
+                        cur[prev] = ans = Math.max(temp_ans, ans);
+                    }
+                }
+            }
+            prevv=cur;
+        }
+        return cur[prev1];
+    }
+
+    private static int ninjaBottomUp(int i1, int prev1, int[][] a, int[][] dp) {
+
+        for (int i = 0; i <= i1; i++) {
+            for (int prev = 0; prev <=prev1; prev++) {
+                int ans = Integer.MIN_VALUE;
+                for (int j = 0; j < 3; j++) {
+                    if (prev != j) {
+                        int temp_ans = a[i][j]; if (i > 0) temp_ans += dp[i - 1][j];
+                        dp[i][prev] = ans = Math.max(temp_ans, ans);
+                    }
+                }
+            }
+        }
+        return dp[i1][prev1];
     }
 
     private static int ninja(int i, int prev, int[][] a, int[][] dp) {
         if (i < 0) return 0;
-        if (dp[i][prev + 1] != -1) return dp[i][prev + 1];
+        if (dp[i][prev] != -1) return dp[i][prev];
         int ans = Integer.MIN_VALUE;
         for (int j = 0; j < 3; j++) {
             if (prev != j) {
                 int temp_ans = a[i][j] + ninja(i - 1, j, a, dp);
-                dp[i][prev + 1] = ans = Math.max(temp_ans, ans);
+                dp[i][prev] = ans = Math.max(temp_ans, ans);
             }
         }
-        return ans;
+        return dp[i][prev];
     }
 
+    //DP -7
     private static int ninja(int i, int prev, int[][] a) {
         if (i < 0) return 0;
         int ans = Integer.MIN_VALUE;
@@ -1841,22 +1908,39 @@ public class DP {
         return ans;
     }
 
-    private static int nonAdjBottomUp(int[] a) {
-        int prev = 0;
-        int prev2 = 0;
-        int dp[] = new int[a.length];
-        for (int i = 0; i < a.length; i++) {
-            int take = a[i];
-            if (i > 1) take += prev2;
-            int not_take = 0;
-            if (i > 0) not_take += prev;
-            int cur = Math.max(take, not_take);
-            prev2 = prev;
-            prev = cur;
-        }
-        return dp[a.length - 1];
+    //DP - 6
+    //note - change all type of method nonAdjBottomUp to long
+    //otherwise , it will fail some case
+    public static long houseRobber(int[] valueInHouse) {
+        int n=valueInHouse.length;
+        if(n==1) return valueInHouse[n-1];
+        int []a1=Arrays.copyOfRange(valueInHouse, 0, n-1);
+        int []a2=Arrays.copyOfRange(valueInHouse, 1, n);
+
+        return Math.max(nonAdjBottomUp(a1), nonAdjBottomUp(a2));
     }
 
+    private static int nonAdjBottomUp(int[] a) {
+        int prev1 = 0; int prev2 = 0;
+        for (int i = 0; i < a.length; i++) {
+            int take = a[i];if (i > 1) take += prev2;
+            int not_take = 0; if (i > 0) not_take += prev1;
+            int cur = Math.max(take, not_take);
+            prev2 = prev1;
+            prev1 = cur;
+        }
+        return prev1;
+    }
+
+    private static int nonAdjBottomUp(int n, int[] a, int[] dp) {
+
+        for (int i = 0; i <=n ; i++) {
+            int take = a[i] ; if(i>1) take+= nonAdjBottomUp(i - 2, a, dp);
+            int not_take = 0 ; if(i>1) not_take+= nonAdjBottomUp(i - 1, a, dp);
+             dp[i] = Math.max(take, not_take);
+        }
+        return dp[n];
+    }
     private static int nonAdj1(int i, int[] a, int[] dp) {
         if (i < 0) return 0;
         if (dp[i] != -1) return dp[i];
@@ -1867,6 +1951,7 @@ public class DP {
 
     }
 
+    //video - 5
     private static int nonAdj(int i, int[] a) {
         if (i < 0) return 0;
         int take = a[i] + nonAdj(i - 2, a);
@@ -1876,6 +1961,7 @@ public class DP {
 
     }
 
+    //video - 4
     private static int frogKStep(int i, int[] a, int K) {
         if (i == 0) return 0;
         int min_energy = (int) 1e7;
@@ -1888,9 +1974,9 @@ public class DP {
         return min_energy;
     }
 
-    private static int frogBottomUp(int[] a) {
+    private static int frogBottomUpOptimized(int[] a) {
 
-        int prev = 0, prev2 = 0, cur = 0;
+        int prev = 0, prev2 = 0, cur;
         for (int i = 1; i < a.length; i++) {
             int left = prev + Math.abs(a[i] - a[i - 1]);
             int right = (int) 1e9;
@@ -1902,6 +1988,17 @@ public class DP {
         return prev;
     }
 
+    private static int frogBottomUp(int n1, int[] a, int[] dp) {
+        dp[0]= 0; //base case
+        for (int n = 1; n <=n1 ; n++) {
+            int left = dp[n - 1] + Math.abs(a[n] - a[n - 1]);
+            int right = (int) 1e9;
+            if (n > 1) right = dp[n - 2] + Math.abs(a[n] - a[n - 2]);
+            dp[n] = Math.min(left, right);
+        }
+
+        return dp[n1];
+    }
     private static int frog(int n, int[] a, int[] dp) {
         if (n == 0) return 0;
         if (dp[n] != -1) return dp[n];
@@ -1911,6 +2008,8 @@ public class DP {
         return dp[n] = Math.min(left, right);
     }
 
+    //dp-3 usnig dp
+    //fn description - energy required to go from index i to 0
     private static int frog(int i, int[] a) {
         if (i == 0) return 0;
         int left = frog(i - 1, a) + Math.abs(a[i] - a[i - 1]);
@@ -1919,10 +2018,39 @@ public class DP {
         return Math.min(left, right);
     }
 
+    //dp -2
     public int climbStairs(int n) {
         if (n == 0) return 1;
         if (n < 0) return 0;
         return climbStairs(n - 1) + climbStairs(n - 2);
+    }
+
+    //video-1 dp
+    //bottom up
+    public static int fibBottomUP(int k, int dp[]) {
+
+        dp[0] = 0;
+        dp[1] = 1;
+        for (int n = 2; n <= k; n++) {
+            dp[n] = dp[n - 1] + dp[n - 2];
+        }
+        return dp[k];
+    }
+
+    //video-1 dp
+    public static int fib(int n, int dp[]) {
+
+        if (n <= 1) return n;
+        if (dp[n] != -1) return dp[n];
+        return dp[n] = fib(n - 1) + fib(n - 2);
+    }
+
+    //video-1 using recursion
+    public static int fib(int n) {
+
+        if (n <= 1) return n;
+        return fib(n - 1) + fib(n - 2);
+
     }
 
 }

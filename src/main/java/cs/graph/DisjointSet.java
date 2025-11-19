@@ -26,6 +26,7 @@ public class DisjointSet {
     public void groupByRank(int u, int v) {
         int up = getUltimateParent(u);
         int vp = getUltimateParent(v);
+        if(up==vp) return;
         //add smaller rank to larger rank
         if (rank[vp] == rank[up]) {
             parent[vp] = up;
@@ -43,6 +44,7 @@ public class DisjointSet {
     public void groupBySize(int u, int v) {
         int up = getUltimateParent(u);
         int vp = getUltimateParent(v);
+        if(up==vp) return;
         //attach smaller to larger
         if (size[vp] > size[up]) {
             parent[up] = vp;
@@ -54,10 +56,9 @@ public class DisjointSet {
     }
 
     //do path compression & return ultimateParent
-    public int getUltimateParent(int v) {
-        if (v == parent[v]) return v;
-        parent[v] = getUltimateParent(parent[v]);
-        return parent[v];
+    public int getUltimateParent(int node) {
+        if (node == parent[node]) return node;
+        return parent[node] = getUltimateParent(parent[node]);
     }
 
     public boolean isInSameComponent(int u, int v) {

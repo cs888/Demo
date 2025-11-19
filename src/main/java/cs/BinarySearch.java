@@ -165,11 +165,11 @@ public class BinarySearch {
         int totLen = n1 + n2;
         if (n1 > n2)
             return findMedianSortedArrays(b, a);
-        int left = (n1 + n2 + 1) / 2;
+        int totalInleft = (n1 + n2 + 1) / 2;
         int low = 0, high = n1;
         while (low <= high) {
             int mid1 = low + high >> 1;
-            int mid2 = left - mid1;
+            int mid2 = totalInleft - mid1;
             int l1 = Integer.MIN_VALUE;
             int l2 = Integer.MIN_VALUE;
             int r1 = Integer.MAX_VALUE;
@@ -194,46 +194,36 @@ public class BinarySearch {
     //BS-21
     public double findMedianSortedArraysBetter(int[] nums1, int[] nums2) {
         int len = nums1.length + nums2.length;
-        int i = 0, j = 0, ans = 0;
+        int i = 0, j = 0, count = 0;
         int m2 = len / 2, m1 = m2 - 1;
         double m1val = 0, m2val = 0;
         while (i < nums1.length && j < nums2.length) {
             if (nums1[i] < nums2[j]) {
-                if (ans == m1)
-                    m1val = nums1[i];
-                else if (ans == m2) {
-                    m2val = nums1[i];
-                }
-                ans++;
+                if (count == m1) m1val = nums1[i];
+                if (count == m2) m2val = nums1[i];
+                count++;
                 i++;
             } else {
-                if (ans == m1)
-                    m1val = nums2[j];
-                else if (ans == m2) {
-                    m2val = nums2[j];
-                }
-                ans++;
+                if (count == m1) m1val = nums2[j];
+                if (count == m2)  m2val = nums2[j];
+                count++;
                 j++;
             }
         }
 
         // nums1 exhausted
         while (j < nums2.length) {
-            if (ans == m1)
-                m1val = nums2[j];
-            else if (ans == m2)
-                m2val = nums2[j];
+            if (count == m1) m1val = nums2[j];
+            if (count == m2) m2val = nums2[j];
             j++;
-            ans++;
+            count++;
         }
 
         // nums2 exahaused
         while (i < nums1.length) {
-            if (ans == m1)
-                m1val = nums1[i];
-            else if (ans == m2)
-                m2val = nums1[i];
-            ans++;
+            if (count == m1) m1val = nums1[i];
+            if (count == m2) m2val = nums1[i];
+            count++;
             i++;
         }
 
@@ -246,7 +236,7 @@ public class BinarySearch {
 
     //BS-20
     public static double MinimiseMaxDistance(int[] arr, int k) {
-        int n = arr.length; // size of the array
+        // size of the array
         double low = 0;
         //Find the maximum distance:
         double high = Arrays.stream(arr).max().getAsInt();
@@ -256,7 +246,9 @@ public class BinarySearch {
         while (high - low > diff) {
             double mid = (low + high) / (2.0);
             int cnt = numberOfGasStationsRequired(mid, arr);
+            // increase mid so that new cnt is less
             if (cnt > k) low = mid;
+            //possible , so get min ans
             else high = mid;
         }
         return high;
@@ -279,25 +271,25 @@ public class BinarySearch {
     //TODO issue in running
     public static double MinimiseMaxDistanceBetter(int[] a, int k) {
         int howMany[] = new int[a.length];
-        int maxIndex = 0;
-        double sectionLength = 0, maxVal = 0;
+        double curSectionLength = 0;
+        // len, index
         Queue<int[]> queue = new PriorityQueue<>((a1, b) -> b[0] - a1[0]);
         for (int i = 0; i < a.length - 1; i++) {
             queue.add(new int[]{a[i + 1] - a[i], i});
         }
 
-        for (int gasStation = 0; gasStation <= k; gasStation++) {
-            int[] diff = queue.poll();
-            howMany[diff[1]] += 1;
-            sectionLength = diff[0] / (double) (howMany[diff[1]] + 1);
-            queue.add(new int[]{(int) sectionLength, diff[1]});
+        for (int gasStation = 1; gasStation <= k; gasStation++) {
+            int[] len = queue.poll();
+            howMany[len[1]] += 1;
+            curSectionLength = len[0] / (double) (howMany[len[1]] + 1);
+            queue.add(new int[]{(int) curSectionLength, len[1]});
         }
 
         double ans = Integer.MIN_VALUE;
         for (int i = 0; i < a.length - 1; i++) {
             int diff = a[i + 1] - a[i];
-            sectionLength = diff / (howMany[i] + 1);
-            ans = Math.max(ans, sectionLength);
+            curSectionLength = diff / (howMany[i] + 1);
+            ans = Math.max(ans, curSectionLength);
         }
         return ans;
     }
@@ -306,26 +298,28 @@ public class BinarySearch {
     //max section length
     //TODO:iSSUE IN running
     public static double MinimiseMaxDistanceBrute(int[] a, int k) {
+        // total item placed or sector-1 item placed
         int howMany[] = new int[a.length - 1];
-        int maxIndex = 0;
-        int sectionLength = 0, diff = 0, maxVal = 0;
-        for (int gasStation = 0; gasStation <= k; gasStation++) {
+        int maxSectionLenIndex = 0;
+        int curSectionLength = 0, diff = 0, maxSectionLength = 0;
+        for (int gasStation = 1; gasStation <= k; gasStation++) {
             for (int i = 0; i < a.length - 1; i++) {
                 diff = a[i + 1] - a[i];
-                sectionLength = diff / (howMany[i] + 1);
-                if (maxVal < sectionLength) {
-                    maxVal = sectionLength;
-                    maxIndex = i;
+                curSectionLength = diff / (howMany[i] + 1);
+                if (curSectionLength > maxSectionLength) {
+                    maxSectionLength = curSectionLength;
+                    maxSectionLenIndex = i;
                 }
             }
-            howMany[maxIndex] += 1;
+            howMany[maxSectionLenIndex] += 1;
         }
 
         double ans = Integer.MIN_VALUE;
+        //calculate max len of each sector
         for (int i = 0; i < a.length - 1; i++) {
             diff = a[i + 1] - a[i];
-            sectionLength = diff / (howMany[i] + 1);
-            ans = Math.max(ans, sectionLength);
+            curSectionLength = diff / (howMany[i] + 1);
+            ans = Math.max(ans, curSectionLength);
         }
         return ans;
     }
@@ -333,28 +327,30 @@ public class BinarySearch {
     //BS- 19
     //or it is same as 18
     // or same as painter partion problem https://www.codingninjas.com/studio/problems/painter-s-partition-problem_1089557
-    // or split array lartest sum https://www.codingninjas.com/studio/problems/largest-subarray-sum-minimized_7461751
+    // or split array largest sum https://www.codingninjas.com/studio/problems/largest-subarray-sum-minimized_7461751
 
     //BS-18
     //min is max or min(max) or l
     public static int findPages(ArrayList<Integer> arr, int n, int m) {
         if (arr.size() < m) return -1;
         int[] a = arr.stream().mapToInt(x -> x).toArray();
-        int l = Arrays.stream(a).max().getAsInt();
-        int r = Arrays.stream(a).sum();
+        int lo = Arrays.stream(a).max().getAsInt();
+        int hi = Arrays.stream(a).sum();
 
-        while (l <= r) {
-            int mid = l + r >> 1;
+        while (lo <= hi) {
+            int mid = lo + hi >> 1;
             int count = getStudentCount(a, mid);
-            if (count > m) l = mid + 1;
-            else r = mid - 1;
+            //increase mid so that count is less
+            if (count > m) lo = mid + 1;
+            else hi = mid - 1;
         }
-        return l;
+        return lo;
     }
 
     private static int getStudentCount(int[] a, int maxPage) {
-        int count = 1, tillLast = 0;
-        for (int book = 0; book < a.length; book++) {
+        // starting with 1 since , suppose if we allocate
+        int count = 1, tillLast = a[0];
+        for (int book = 1; book < a.length; book++) {
             if (a[book] + tillLast <= maxPage) {
                 tillLast += a[book];
             } else {
@@ -367,12 +363,12 @@ public class BinarySearch {
 
     //BS-17
     //max is min or max(min) or r
+    // is min means return l
+    // is max means return r
     public static int aggressiveCows(int[] stalls, int k) {
         Arrays.sort(stalls);
-        int maxDist = -1;
-        for (int i = 0; i < stalls.length; i++) {
-            maxDist = Math.max(maxDist, stalls[i]);
-        }
+        int maxDist = Arrays.stream(stalls).max().getAsInt();
+
         int l = 1, r = maxDist;
         while (l <= r) {
             int mid = l + r >> 1;
@@ -391,7 +387,6 @@ public class BinarySearch {
                 last = stalls[i];
                 if (count >= k) return true;
             }
-
         }
         return false;
     }
@@ -401,7 +396,7 @@ public class BinarySearch {
     //more is k minus missing or k-missing or k-a[i]-i-1
     // or a[r]+k-(a[r]-r-1)
     // or r+1+k or l+k
-    private static int kth(int[] a, int k) {
+    private static int kthNumber(int[] a, int k) {
         if (a[0] > k) return k;
         int n = a.length;
         int l = 0, r = n - 1;
@@ -420,8 +415,9 @@ public class BinarySearch {
         int l = 1, r = Arrays.stream(weights).sum();
         while (l <= r) {
             int mid = l + r >> 1;
-            if (countDays(mid, weights) > d) r = mid - 1;
-            else l = mid + 1;
+            // increase l to decrease countDays
+            if (countDays(mid, weights) > d)  l = mid + 1 ;
+            else r = mid - 1;
         }
         return l;
     }
@@ -466,21 +462,21 @@ public class BinarySearch {
     }
 
     //BS-13
-    public static int roseGarden(int[] arr, int roses, int bucket) {
+    public static int minDaysBonquet(int[] arr, int roses, int bucket) {
         int l = Arrays.stream(arr).min().getAsInt(), r = Arrays.stream(arr).max().getAsInt();
         while (l <= r) {
             int mid = l + r >> 1;
-            if (makePossible(mid, arr, roses, bucket)) r = mid - 1;
+            if (isPossible(mid, arr, roses, bucket)) r = mid - 1;
             else l = mid + 1;
         }
         return l;
     }
 
-    private static boolean makePossible(int mid, int[] a, int roses, int bucket) {
+    private static boolean isPossible(int mid, int[] a, int roses, int bucket) {
         int count = 0;
         for (int i = 0; i < a.length; i++) {
             if (a[i] >= mid) count++;
-            else bucket -= count / roses;
+            else { bucket -= count / roses; count=0;}
         }
         return bucket <= 0 ? true : false;
     }
@@ -491,6 +487,7 @@ public class BinarySearch {
         while (l <= r) {
             int mid = l + r >> 1;
             int hoursTake = noOfhoursTake(mid, v);
+            // increase mid so that hoursTake decrease
             if (hoursTake > h) l = mid + 1;
             else r = mid - 1;
         }
@@ -555,8 +552,8 @@ public class BinarySearch {
     }
 
     //BS-8
-    // (even,odd) -> element is on right half , eliminate left half
-    //(odd,even) ->element is on left half , eliminate right half
+    // (even,odd) -> i am on left half , element is on right half , eliminate left half
+    //(odd,even) ->i am on right half , element is on left half , eliminate right half
     public static int singleNonDuplicate(ArrayList<Integer> arr) {
         int[] a = arr.stream().mapToInt(x -> x).toArray();
         int len = a.length;
@@ -609,6 +606,8 @@ public class BinarySearch {
         int min = Integer.MAX_VALUE;
         while (l <= r) {
             int mid = l + r >> 1;
+            //optimization , array/search space is already sorted
+            if(a[l]<=a[r]) { Math.min(a[l],min); break;}
             //left is sorted
             if (a[l] <= a[mid]) {
                 min = Math.min(min, a[l]);
@@ -810,8 +809,10 @@ public class BinarySearch {
     }
 
 
-    // lower bound is defined as smallest index or first index such that a[i]>=target
-    //is same as ceil but ans=-1 as default
+    // lower bound is defined as smallest index or first index such that element at that index is equal to or greater than target
+    // i.e a[i]>=target
+    // OR ,lower bound is smallest index such that a[i]>=x
+    //lower bound is same is ceil value  but ans=-1 as default
     private static int lowerBound(int[] a, int target) {
 
         int lo = 0;
@@ -826,5 +827,24 @@ public class BinarySearch {
             } else lo = mid + 1;
         }
         return ans;
+    }
+
+    private static int searchRecursion(int lo, int hi, int target, int[] a) {
+        if (lo > hi) return -1;
+        int mid = lo + hi >> 1;
+        if(a[mid]==target) return mid;
+        if (target > a[mid]) return searchRecursion(mid + 1, hi, target, a);
+        return searchRecursion(lo, mid - 1, target, a);
+    }
+
+    private static int search(int n, int target, int[] a) {
+        int lo=0 , hi=n-1;
+        while (lo<=hi){
+            int mid= lo + hi >> 1;
+            if(target == a[mid]) return mid;
+            else if(target > a[mid] )lo=mid+1;
+            else hi=mid-1;
+        }
+        return -1;
     }
 }

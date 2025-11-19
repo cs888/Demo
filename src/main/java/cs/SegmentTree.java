@@ -1,4 +1,4 @@
-package cs.rec;
+package cs;
 
 public class SegmentTree {
 
@@ -10,7 +10,7 @@ public class SegmentTree {
         //now do n number of queries
     }
 
-    static int  segmentTreeRangeSumQuery(int i, int low, int high, int[] seg, int l, int r, int val, int[] lazy) {
+    static int  segmentTreeRangeSumQuery(int i, int low, int high, int[] seg, int l, int r, int[] lazy) {
         //do pending update if any index
         if(lazy[i]!=0){
             seg[i] += (high - low + 1) * lazy[i];
@@ -27,8 +27,8 @@ public class SegmentTree {
             return seg[i];
         }
         int mid = low + high >> 1;
-        return  segmentTreeRangeSumQuery(2 * i + 1, low, mid, seg, l, r, val, lazy)+
-        segmentTreeRangeSumQuery(2 * i + 2, mid + 1, high, seg, l, r, val, lazy);
+        return  segmentTreeRangeSumQuery(2 * i + 1, low, mid, seg, l, r, lazy)+
+        segmentTreeRangeSumQuery(2 * i + 2, mid + 1, high, seg, l, r, lazy);
 
     }
 
@@ -47,6 +47,7 @@ public class SegmentTree {
 
         //outside
         if (r < low || l > high) return;
+        //inside
         else if (l >= low && r <= high) {
             seg[i] += (high - low + 1) * val;
             if (low != high) {
@@ -87,11 +88,13 @@ public class SegmentTree {
     }
 
     int search(int i, int low, int high, int l, int r, int[] seg) {
-        //within
+        //within range
         if (low >= l && high <= r) {
             return seg[i];
         }
-        //out of Range
+        //out of Range case
+        // array low is greater than r
+        // array high is smaller than l
         else if (low > r || high < l) return Integer.MIN_VALUE;
 
         //overlap

@@ -1,4 +1,4 @@
-package cs.rec;
+package cs;
 
 public class FenwickTree {
     int fen[];
@@ -12,6 +12,7 @@ public class FenwickTree {
         }
     }
 
+    // sum from 1 to index i
     int sum(int i) {
         int S = 0;
         while (i > 0) {
@@ -25,22 +26,20 @@ public class FenwickTree {
         return sum(r) - sum(l - 1);
     }
 
-    //first index till which sum is K or >k
+    //first/min index till which sum is >=k
     //Or,index till which prefix sum is lowerBound
     //binary lifting
     int findLowerBound(int k) {
         int n = fen.length;
-        int index = 0, prevSum = 0;
+        int curIndex = 0, prevSum = 0;
         double value_n_base_2 = Math.log(n) / Math.log(2);
         for (int i = (int) value_n_base_2; i >= 0; i--) {
-            //1 << i is power 2 raise to i or Math.pow(2,i)
-            int power_2_raise_i = 1 << i;
-            if (power_2_raise_i<n && fen[index + power_2_raise_i] + prevSum <= k) {
-                index += power_2_raise_i;
-                prevSum += fen[index];
+            if (prevSum + fen[curIndex + (1 << i)] < k) {
+                curIndex += 1 << i;
+                prevSum += fen[curIndex];
             }
         }
-        return index + 1;
+        return curIndex + 1;
     }
 }
 

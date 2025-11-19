@@ -24,13 +24,6 @@ class Book {
         this.age = age;
     }
 }
-
-interface Iteratorr {
-    boolean hasNext();
-
-    Book next();
-}
-
 class Library {
     List<Book> list;
 
@@ -42,6 +35,12 @@ class Library {
         return new BookIterator(list);
     }
 
+}
+
+interface Iteratorr {
+    boolean hasNext();
+
+    Book next();
 }
 
 class BookIterator implements Iteratorr {

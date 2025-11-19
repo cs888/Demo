@@ -1,4 +1,4 @@
-package cs.rec;
+package cs;
 
 import java.util.*;
 
@@ -71,7 +71,7 @@ public class Array {
             while (right <= high && arr[i] > 2 * arr[right]) {
                 right++;
             }
-            count += right - mid - 1;
+            count += right - (mid + 1);
         }
         return count;
     }
@@ -136,32 +136,67 @@ public class Array {
                 temp[ind++] = arr[rStart++];
             }
         }
+        //leftover
         while (lStart <= mid)
             temp[ind++] = arr[lStart++];
-
+        //leftover
         while (rStart <= r)
             temp[ind++] = arr[rStart++];
 
+        //overrite index with temp array
         for (int i = l, j = 0; i <= r; i++) {
             arr[i] = temp[j++];
         }
     }
 
+    private static int[] binarySearch2d_2(int[][] a, int target) {
+        int row=0;
+        int col=a[0].length-1;
+        while (row<a.length && col>=0){
+            if(a[row][col]==target) return new int[]{row,col};
+            else if(a[row][col]>target) col--;
+            else row++;
+        }
+        return new int[]{-1,-1};
+    }
+
+    private static boolean binarySearch2d_1(int[][] a, int target) {
+        int m = a.length;
+        int n = a[0].length;
+        int lo = 0, hi = m * n - 1;
+        while (lo <= hi) {
+            int mid = lo + hi >> 1;
+            int row = mid / n, col = mid % n;
+            //  System.out.println("lo:"+lo+",hi:"+hi+",mid:"+mid+",row:"+row+",col:"+col+" a[row][col] "+a[row][col]);
+            if (a[row][col] == target) return true;
+            else if (a[row][col] < target) lo = mid + 1;
+            else hi = mid - 1;
+        }
+        return false;
+    }
+
     //AP-25
     public static int[] findMissingRepeatingNumbers(int[] a) {
-        int n = a.length, xr = 0;
+        int n = a.length, xor = 0;
         for (int i = 0; i < n; i++) {
-            xr ^= a[i];
-            xr ^= i + 1;
+            xor ^= a[i];
+            xor ^= i + 1;
         }
-        //get first nonZero bit of xr
-        int bitNo = xr & ~(xr - 1);
+        //get first nonZero bit of xor
+
+        int bitNo = 0;
+        /*while(true){
+            if((xor &(1<<bitNo))!=0) { break; }
+            else bitNo++;
+        }*/
+        bitNo = xor & ~(xor - 1);
         int xrZeroGroup = 0, xrOneGroup = 0;
         for (int i = 0; i < n; i++) {
-            if ((a[i] & bitNo) != 0) xrOneGroup ^= a[i];
+            if ((a[i] & bitNo) == 1) xrOneGroup ^= a[i];
             else xrZeroGroup ^= a[i];
         }
 
+        //do for number 1 to <=n
         for (int i = 1; i <= n; i++) {
             if ((i & bitNo) != 0) xrOneGroup ^= i;
             else xrZeroGroup ^= i;
@@ -199,6 +234,7 @@ public class Array {
                 swap(a, b, i, j);
                 j++;
             }
+            else break;
             i--;
         }
         Arrays.sort(a);
@@ -260,6 +296,7 @@ public class Array {
     }
 
     //AP -22
+    // count of previous (zorTillNow ^ k) from map
     public static int subarraysWithSumK(int[] arr, int k) {
         //previousSum,Count
         Map<Integer, Integer> map = new HashMap<>();
@@ -331,7 +368,7 @@ public class Array {
                     k--;
                     while (j < k && a[j] == a[j - 1])
                         j++;
-                    while (j < k && a[k] == a[k + 1])
+                    while (j < k && a[k+1] == a[k ])
                         k--;
                 }
             }
@@ -437,6 +474,7 @@ public class Array {
         for (int i = 0; i < a.length; i++) {
             prefixSum += a[i];
             map.put(prefixSum, map.getOrDefault(prefixSum, 0) + 1);
+            map.merge(prefixSum,1,Integer::sum);
 
             count += map.getOrDefault(prefixSum - sum, 0);
         }
@@ -484,10 +522,8 @@ public class Array {
     //AP-15
     public static void rotateMatrix(int[][] a) {
 
-        for (int i = 0; i < a.length; i++) {
-            for (int j = i; j < a[0].length; j++) {
-                if (i == j)
-                    continue;
+        for (int i = 0; i < a.length-1; i++) {
+            for (int j = i+1; j < a[0].length; j++) {
                 int temp = a[i][j];
                 a[i][j] = a[j][i];
                 a[j][i] = temp;
@@ -514,7 +550,7 @@ public class Array {
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < m; j++) {
-                if (matrix.get(i).get(j) == 0) {
+                if (matrix.get(i).get (j) == 0) {
                     row[i] = 1;
                     col[j] = 1;
                 }
@@ -548,14 +584,14 @@ public class Array {
     private static void nextPermutation(int[] a) {
         int n = a.length;
         int ind = -1;
-        //find first smaller
+        //find first smaller from last
         for (int i = n - 2; i >= 0; i--) {
             if (a[i] < a[i + 1]) {
                 ind = i;
                 break;
             }
         }
-        //return reveresed array if array already sorted
+        //return reversed array if array already sorted
         if (ind == -1) {
             Arrays.sort(a);
             return;
@@ -581,6 +617,7 @@ public class Array {
     }
 
     //AP-10 part 1
+    //this is wrong bro
     public static int[] alternateNumbers(int[] a) {
         int pos = 0;
         int neg = 1;
@@ -749,8 +786,11 @@ public class Array {
         int zeroIndex = 0;
         int itr = 0;
         while (itr < a.length) {
+            if(a[zeroIndex]!=0)  { zeroIndex ++;continue; }
             if (a[itr] != 0) {
-                swap(zeroIndex++, itr++, a);
+                swap(zeroIndex, itr, a);
+                itr++;
+                zeroIndex++;
             } else itr++;
         }
         return a;
@@ -760,5 +800,53 @@ public class Array {
         int temp = a[p2];
         a[p2] = a[p1];
         a[p1] = temp;
+    }
+
+    private static int leftShiftBy1(int n, int[] a) {
+        int temp=a[0];
+        for (int i = 1; i <n ; i++) {
+            a[i-1]=a[i];
+        }
+        a[n-1]=temp;
+        System.out.println(Arrays.toString(a));
+        return 0;
+    }
+    private static int uniqueCount(int n, int[] a) {
+        int i=0,j=1;
+        while (j < n) {
+            if (a[i] == a[j]) {
+                j++;
+            } else {
+                a[++i] = a[j];
+            }
+        }
+        return i+1;
+    }
+
+    private static int secondSmallest(int n, int[] a) {
+        int  smallest=a[0] , secondSmallest=Integer.MAX_VALUE;
+        for (int i = 1; i <n ; i++) {
+            if(a[i]<smallest){
+                secondSmallest=smallest;
+                smallest=a[i];
+            } else if (a[i]>smallest && a[i]<secondSmallest) {
+                secondSmallest=a[i];
+            }
+        }
+        return secondSmallest;
+    }
+
+    //second largest
+    private static int secondLargest(int n, int[] a) {
+        int slargest=Integer.MIN_VALUE , largest=a[0];
+        for (int i = 1; i <n ; i++) {
+            if(a[i]>largest){
+                slargest=largest;
+                largest=a[i];
+            } else if (a[i]<largest && a[i]>slargest) {
+                slargest=a[i];
+            }
+        }
+        return slargest;
     }
 }

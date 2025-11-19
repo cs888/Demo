@@ -4,14 +4,14 @@ import java.util.*;
 
 public class LL {
     public static void main(String[] args) {
-        Node n1 = new Node(1);
-        n1.next = new Node(4);
-        n1.next.next = new Node(7);
-        n1.next.next.next = new Node(9);
+        LLNode n1 = new LLNode(1);
+        n1.next = new LLNode(4);
+        n1.next.next = new LLNode(7);
+        n1.next.next.next = new LLNode(9);
 
 
-        Node n2 = new Node(3);
-        n2.next = new Node(5);
+        LLNode n2 = new LLNode(3);
+        n2.next = new LLNode(5);
 
     }
 
@@ -64,15 +64,15 @@ public class LL {
     }
 
     //LL-27 another Way Optimized
-    public static Node cloneLLOptimized(Node head) {
-        Node dummyNode = new Node(-1);
-        Node ans = dummyNode;
-        Node cur = head;
+    public static LLNode cloneLLOptimized(LLNode head) {
+        LLNode dummyLLNode = new LLNode(-1);
+        LLNode ans = dummyLLNode;
+        LLNode cur = head;
         // create node in b/w
         while (cur != null) {
-            Node newNode = new Node(cur.data);
-            newNode.next = cur.next;
-            cur.next = newNode;
+            LLNode newLLNode = new LLNode(cur.data);
+            newLLNode.next = cur.next;
+            cur.next = newLLNode;
             cur = cur.next.next;
         }
 
@@ -96,36 +96,36 @@ public class LL {
             cur = cur.next;
         }
 
-        return dummyNode.next;
+        return dummyLLNode.next;
     }
 
     //LL-27
-    public static Node cloneLL(Node head) {
-        Map<Node, Node> map = new HashMap<>();
+    public static LLNode cloneLL(LLNode head) {
+        Map<LLNode, LLNode> map = new HashMap<>();
         return cloneLL(head, map);
     }
 
-    static Node cloneLL(Node head, Map<Node, Node> map) {
+    static LLNode cloneLL(LLNode head, Map<LLNode, LLNode> map) {
         if (head == null)
             return head;
-        Node newNode = new Node(head.data);
-        map.put(head, newNode);
-        newNode.next = cloneLL(head.next, map);
-        newNode.random = map.get(head.random);
-        return newNode;
+        LLNode newLLNode = new LLNode(head.data);
+        map.put(head, newLLNode);
+        newLLNode.next = cloneLL(head.next, map);
+        newLLNode.random = map.get(head.random);
+        return newLLNode;
     }
 
     //LL-26
-    public static Node sortLL(Node head) {
+    public static LLNode sortLL(LLNode head) {
         return sort(head);
     }
 
-    static Node sort(Node head) {
+    static LLNode sort(LLNode head) {
         if (head == null || head.next == null)
             return head;
-        Node prev = head;
-        Node slow = head;
-        Node fast = head;
+        LLNode prev = head;
+        LLNode slow = head;
+        LLNode fast = head;
         while (fast != null && fast.next != null) {
             prev = slow;
             slow = slow.next;
@@ -133,8 +133,8 @@ public class LL {
         }
         // if (prev != null)
         prev.next = null;
-        Node l1 = sort(head);
-        Node l2 = sort(slow);
+        LLNode l1 = sort(head);
+        LLNode l2 = sort(slow);
         return merge(l1, l2);
 
     }
@@ -161,19 +161,19 @@ public class LL {
     }
 
     //LL-24
-    public static Node flattenLinkedList(Node head) {
+    public static LLNode flattenLinkedList(LLNode head) {
         return flatten(head);
     }
 
-    public static Node flatten(Node head) {
+    public static LLNode flatten(LLNode head) {
         if (head == null || head.next == null)
             return head;
-        Node last = flatten(head.next);
+        LLNode last = flatten(head.next);
         head.next = null;
         return mergeVertical(head, last);
     }
 
-    static Node mergeVertical(Node l1, Node l2) {
+    static LLNode mergeVertical(LLNode l1, LLNode l2) {
         if (l1 == null)
             return l2;
         if (l2 == null)
@@ -189,7 +189,7 @@ public class LL {
     }
 
     //LL-23
-    public static Node sortTwoLists(Node l1, Node l2) {
+    public static LLNode sortTwoLists(LLNode l1, LLNode l2) {
         if (l1 == null) return l2;
         if (l2 == null) return l1;
 
@@ -203,11 +203,11 @@ public class LL {
     }
 
     //LL-22
-    public static Node rotate(Node head, int k) {
+    public static LLNode rotate(LLNode head, int k) {
 
-        Node cur = head;
+        LLNode cur = head;
         int len = 1;
-        Map<Integer, Node> map = new HashMap<>();
+        Map<Integer, LLNode> map = new HashMap<>();
         while (cur.next != null) {
             map.put(len, cur);
             len++;
@@ -217,7 +217,7 @@ public class LL {
             return head;
         k = k % len;
         cur.next = head;
-        Node root = map.get(len - k);
+        LLNode root = map.get(len - k);
         if (root != null) {
             head = root.next;
             root.next = null;
@@ -226,9 +226,9 @@ public class LL {
     }
 
     //LL-21
-    public static Node kReverse(Node head, int k) {
+    public static LLNode kReverse(LLNode head, int k) {
         int count = 0;
-        Node cur = head, curHead = head, prev_Tail = head;
+        LLNode cur = head, curHead = head, prev_Tail = head;
         while (cur != null) {
             if (count == 0) {
                 curHead = cur;
@@ -237,13 +237,13 @@ public class LL {
                 // reached at current k+1
             } else if (count == k - 1) {
                 // 1 2 3
-                Node curNextTemp = cur.next;
+                LLNode curNextTemp = cur.next;
                 cur.next = null;
                 // reverse
-                Node reversed = reversee(curHead);
+                LLNode reversed = reversee(curHead);
 
                 if (curHead == head) {
-                    Node tempHead = head;
+                    LLNode tempHead = head;
                     head = reversed;
                     tempHead.next = curNextTemp;
                 } else {
@@ -261,28 +261,28 @@ public class LL {
         return head;
     }
 
-    static Node reversee(Node head) {
+    static LLNode reversee(LLNode head) {
         if (head == null || head.next == null)
             return head;
-        Node temp = reversee(head.next);
+        LLNode temp = reversee(head.next);
         head.next.next = head;
         head.next = null;
         return temp;
     }
 
-    static Node reverse(Node head) {
+    static LLNode reverse(LLNode head) {
         if (head == null || head.next == null)
             return head;
-        Node temp = reverse(head.next);
+        LLNode temp = reverse(head.next);
         head.next.next = head;
         head.next = null;
         return temp;
     }
 
     //LL-19
-    public static List<List<Integer>> findPair(Node head, int k) {
-        Node start = head;
-        Node end = head;
+    public static List<List<Integer>> findPair(LLNode head, int k) {
+        LLNode start = head;
+        LLNode end = head;
         while (end.next != null) end = end.next;
         List<List<Integer>> ans = new ArrayList<>();
         while (start.data < end.data) {
@@ -299,10 +299,10 @@ public class LL {
     }
 
     //LL-18
-    public static Node deleteAllOccurrences(Node head, int k) {
+    public static LLNode deleteAllOccurrences(LLNode head, int k) {
 
-        Node prev = null;
-        Node temp = head;
+        LLNode prev = null;
+        LLNode temp = head;
         while (temp != null) {
             if (temp.data == k) {
                 if (temp == head)
@@ -320,8 +320,8 @@ public class LL {
     }
 
     //LL-17
-    public static Node firstNode(Node head) {
-        Node slow = head, fast = head;
+    public static LLNode firstNode(LLNode head) {
+        LLNode slow = head, fast = head;
         while (fast != null && fast.next != null) {
             slow = slow.next;
             fast = fast.next.next;
@@ -339,21 +339,21 @@ public class LL {
 
     //LL-16
     //can be done by skip on iteartion of fast i.e doing fast=fast.next.next before
-    public static Node deleteMiddle(Node head) {
-        Node slow = head, fast = head, prev = null;
+    public static LLNode deleteMiddle(LLNode head) {
+        LLNode slow = head, fast = head, prev = null;
         while (fast != null && fast.next != null) {
             prev = slow;
             slow = slow.next;
             fast = fast.next.next;
         }
-        if (prev == null) return new Node(-1);
+        if (prev == null) return new LLNode(-1);
         prev.next = slow.next;
         return head;
     }
 
     //LL-15
-    public static int lengthOfLoop(Node head) {
-        Node slow = head, fast = head;
+    public static int lengthOfLoop(LLNode head) {
+        LLNode slow = head, fast = head;
         while (fast != null && fast.next != null) {
             slow = slow.next;
             fast = fast.next.next;
@@ -362,7 +362,7 @@ public class LL {
         return 0;
     }
 
-    private static int findLen(Node slow, Node fast) {
+    private static int findLen(LLNode slow, LLNode fast) {
         int len = 0;
         while (slow.next != fast) {
             slow = slow.next;
@@ -372,8 +372,8 @@ public class LL {
     }
 
     //LL-14
-    public static boolean detectCycle(Node head) {
-        Node slow = head, fast = head;
+    public static boolean detectCycle(LLNode head) {
+        LLNode slow = head, fast = head;
         while (fast != null && fast.next != null) {
             slow = slow.next;
             fast = fast.next.next;
@@ -383,8 +383,8 @@ public class LL {
     }
 
     //LL-13
-    public static Node findMiddle(Node head) {
-        Node slow = head, fast = head;
+    public static LLNode findMiddle(LLNode head) {
+        LLNode slow = head, fast = head;
         while (fast != null && fast.next != null) {
             slow = slow.next;
             fast = fast.next.next;
@@ -393,8 +393,8 @@ public class LL {
     }
 
     //ll-12
-    public static int findIntersection(Node firstHead, Node secondHead) {
-        Node p1 = firstHead, p2 = secondHead;
+    public static int findIntersection(LLNode firstHead, LLNode secondHead) {
+        LLNode p1 = firstHead, p2 = secondHead;
         while (p1 != p2) {
             p1 = p1 == null ? secondHead : p1.next;
             p2 = p2 == null ? firstHead : p2.next;
@@ -403,19 +403,19 @@ public class LL {
     }
 
     //LL-11
-    public static Node addOne(Node head) {
+    public static LLNode addOne(LLNode head) {
         int a[] = {1};
         addOne(head, a);
         //System.out.println("a[0]:" + a[0]);
         if (a[0] > 0) {
-            Node temp = new Node(a[0]);
+            LLNode temp = new LLNode(a[0]);
             temp.next = head;
             return temp;
         }
         return head;
     }
 
-    public static Node addOne(Node head, int a[]) {
+    public static LLNode addOne(LLNode head, int a[]) {
         if (head == null) return head;
         addOne(head.next, a);
         a[0] += head.data;
@@ -425,18 +425,18 @@ public class LL {
     }
 
     //LL-10
-    public static boolean isPalindrome(Node head) {
+    public static boolean isPalindrome(LLNode head) {
         if (head == null || head.next == null) return true;
 
-        Node slow = head;
-        Node fast = head;
+        LLNode slow = head;
+        LLNode fast = head;
 
         while (fast != null && fast.next != null) {
             slow = slow.next;
             fast = fast.next.next;
         }
 
-        Node newHead = rev(slow);
+        LLNode newHead = rev(slow);
         slow = head;
         while (newHead != null) {
             if (slow.data != newHead.data)
@@ -448,10 +448,10 @@ public class LL {
     }
 
     //LL- 6
-    public static Node oddEvenList(Node head) {
-        Node odd = head;
-        Node even = head.next;
-        Node even_head = head.next;
+    public static LLNode oddEvenList(LLNode head) {
+        LLNode odd = head;
+        LLNode even = head.next;
+        LLNode even_head = head.next;
 
         while (even != null && even.next != null) {
             odd.next = odd.next.next;
@@ -465,7 +465,7 @@ public class LL {
 
     }
 
-    private static Node merge(Node n1, Node n2) {
+    private static LLNode merge(LLNode n1, LLNode n2) {
         if (n1 == null) return n2;
         else if (n2 == null) return n1;
         if (n1.data < n2.data) {
@@ -477,44 +477,44 @@ public class LL {
         }
     }
 
-    static Node rev(Node head) {
+    static LLNode rev(LLNode head) {
         if (head == null || head.next == null)
             return head;
-        Node newhead = rev(head.next);
+        LLNode newhead = rev(head.next);
         head.next.next = head;
         head.next = null;
         return newhead;
     }
 }
 
-class Node {
+ class LLNode {
     int data;
-    Node next;
-    Node prev;
-    Node child;
-    Node random;
+    LLNode next;
+    LLNode prev;
+    LLNode child;
+    LLNode random;
 
-    Node() {
+    LLNode() {
     }
 
-    Node(int data) {
+    LLNode(int data) {
         this.data = data;
     }
 
-    Node(int data, Node next, Node prev) {
+    LLNode(int data, LLNode next, LLNode prev) {
         this.data = data;
         this.next = next;
         this.prev = prev;
     }
 
-    Node(int data, Node next, Node prev, Node child) {
+    LLNode(int data, LLNode next, LLNode prev, LLNode child) {
         this.data = data;
         this.next = next;
         this.prev = prev;
         this.child = child;
     }
 
-    Node(int data, Node next, Node prev, Node child, Node random) {
+    LLNode(int data, LLNode next, LLNode prev, LLNode child, LLNode random) {
         this.data = data;
         this.next = next;
         this.prev = prev;

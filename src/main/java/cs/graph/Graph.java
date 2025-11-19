@@ -80,13 +80,13 @@ public class Graph {
             if (it == parent) continue;
             if (!vis[it]) {
                 doDfsArticulationPoint(it, vis, adj, low, ans, insertionTime + 1, node, tin);
-                low[node] = Math.min(low[node],low[it]);
+                low[node] = Math.min(low[node], low[it]);
                 //do not apply to root
                 // or low[it]>=in[node]
                 //& do not apply to first node
                 if (tin[node] <= low[it] && parent != -1) ans.add(List.of(node));
             } else {
-                low[node] = Math.min(low[node],tin[it]);
+                low[node] = Math.min(low[node], tin[it]);
             }
         }
     }
@@ -130,7 +130,7 @@ public class Graph {
                 //condition for bridge , means child cannot be reached
                 if (tin[node] < low[child]) ans.add(List.of(node, child));
             } else {
-                low[node] = Math.min(low[node],low[child]);
+                low[node] = Math.min(low[node], low[child]);
             }
         }
     }
@@ -141,7 +141,8 @@ public class Graph {
     //valid only for directedGraph
     //video - 54
     public int kosaraju(int V, List<List<Integer>> adj) {
-        //1.do toposort i.e get element(from where to start) from last dfs vitited to first
+
+        //1.do toposort i.e get element(from where to start) from last dfs vitited to first(sort according to finish time)
         //2. reverse adj
         //3. do dfs & print element
 
@@ -164,7 +165,7 @@ public class Graph {
         while (!stack.empty()) {
             Integer u = stack.pop();
             if (!vis[u]) {
-                doDFSKosa(u, vis, Tadj);
+                doDFSForKosa(u, vis, Tadj);
                 count++;
             }
 
@@ -194,11 +195,11 @@ public class Graph {
         ans.add(start);
     }
 
-    private void doDFSKosa(Integer u, boolean[] vis, List<List<Integer>> tadj) {
+    private void doDFSForKosa(Integer u, boolean[] vis, List<List<Integer>> tadj) {
         vis[u] = true;
         for (int v : tadj.get(u)) {
             if (!vis[v]) {
-                doDFSKosa(v, vis, tadj);
+                doDFSForKosa(v, vis, tadj);
             }
         }
     }
@@ -208,7 +209,7 @@ public class Graph {
     }
 
     //video - 53
-    //logic : treat row & column as separate node
+    //logic : treat each row & each column as single node
     //edges are given
     //TODO:not working correctly
     int maxRemove(int[][] stones, int n) {
@@ -229,7 +230,7 @@ public class Graph {
             int colNode = stones[i][1];
             DisjointSet.groupBySize(rowNode, colNode + 1 + maxRow);
             stoneNodes.add(rowNode);
-            stoneNodes.add(colNode);
+            stoneNodes.add(colNode + 1 + maxRow);
         }
         //get count of numberOfComponents
         int numberOfComponents = (int) stoneNodes.stream().filter(key -> DisjointSet.getUltimateParent(key) == key).count();
@@ -323,7 +324,7 @@ public class Graph {
             Collections.sort(temp.subList(1, temp.size()));
         });
 
-        //filterNonZerList
+        //filterNonZerList if required
         List<List<String>> collect = ans.stream().filter(x -> x.size() > 0).collect(Collectors.toList());
 
         return collect;
@@ -350,7 +351,7 @@ public class Graph {
         }
 
         int atLeastRequireEdges = numberOfGraphComponents - 1;
-        if (atLeastRequireEdges >= numberOfExtraEdges) return atLeastRequireEdges;
+        if (numberOfExtraEdges >= atLeastRequireEdges) return atLeastRequireEdges;
 
         return -1;
 
@@ -358,7 +359,7 @@ public class Graph {
 
 
     //video - 48
-    //i.e is total number of ulitmate parent
+    //i.e count of total number of ulitmate parent
     // or number bosses or DisjointSet.getUltimateParent(node) == node
     private static int noDisjointSetOrNumberOfProvinces(int[][] g) {
 
@@ -383,6 +384,7 @@ public class Graph {
     //video - 47
     //sort edges
     //keep adding if not in same component
+    // for finding MST
     private static void krushkalMST(List<List<Integer>> edges) {
 
         //sort by weight
@@ -484,6 +486,8 @@ public class Graph {
     //used to find negative cycle
     // if g[i][i]<0 return negative path
     //multiSource shortest path
+    // for DAG graph only
+    // if UG then add both sides
     private static void floyd_warshal(int[][] g, int V) {
         int row = g.length;
         int col = g[0].length;
@@ -510,7 +514,8 @@ public class Graph {
     //work for Directed Graph as well as un-directed , if UDG then add both edges
     //for negative cycles or negative edges
     //for shortest path , SSST
-    private static int[] bellManFord(int N, List<List<Integer>> adj) {
+    // TC-> V+E
+    private static int[] bellManFord(List<List<Integer>> adj) {
         int[] dist = new int[adj.size() - 1];
         Arrays.fill(dist, Integer.MAX_VALUE);
         dist[0] = 0;
@@ -543,7 +548,7 @@ public class Graph {
     //video - 40
     //do djikstra
     // ways of start=1
-    // keep track of ways if dist[u] + v.Wt == dist[v.node] then updated ways sum of both
+    // keep track of ways if dist[u] + v.Wt == dist[v.node] then update ways sum of both
     //otherwise , take ways of u only,which is till uth node is reached
     private static int numberOfWaysToArriveAtDestination(int start, int end, List<List<Edge>> wadj) {
         int size = wadj.size();
@@ -560,10 +565,10 @@ public class Graph {
             int distance = temp[0];
             int u = temp[1];
             for (Edge v : wadj.get(u)) {
-                if (dist[u] + v.Wt < dist[v.node]) {
-                    dist[v.node] = dist[u] + v.Wt;
+                if (distance + v.Wt < dist[v.node]) {
+                    dist[v.node] = distance + v.Wt;
                     ways[v.node] = ways[u];
-                    queue.add(new int[]{dist[v.node], v.node});
+                    queue.add(new int[]{distance + v.Wt, v.node});
                 } else if (dist[u] + v.Wt == dist[v.node]) {
                     ways[v.node] = ways[u] + ways[v.node];
                 }
@@ -586,6 +591,7 @@ public class Graph {
         //steps,queue
         Queue<int[]> queue = new ArrayDeque<>();
         queue.add(new int[]{start, 0});
+        a[start]=0;
         while (!queue.isEmpty()) {
             int[] temp = queue.poll();
             int steps = temp[0];
@@ -602,7 +608,7 @@ public class Graph {
         return -1;
     }
 
-    //use djikstra alog with check if stop>k then continue
+    //use djikstra alog with check if stop>k then continue & don't do anything
     //djikstra's will not only give us the shortest path with valid number of stops to node 2 (dst)
     // but it will also generate shortest path with valid number of stops to all the nodes in graph
     // stop in terms of priority queue first element
@@ -612,6 +618,7 @@ public class Graph {
         Arrays.fill(dist, Integer.MAX_VALUE);
         dist[source] = 0;
         Queue<int[]> queue = new ArrayDeque<>();
+        // not in terms of dist,node,stop now work becoz if less stop but more dist then array will not get updated
         //stop,node,dist
         queue.add(new int[]{0, 0, 0});
         while (!queue.isEmpty()) {
@@ -619,10 +626,10 @@ public class Graph {
             int stop = temp[0];
             int u = temp[1];
             int distance = temp[2];
-            if (stop > maxStop) continue;
+            if (stop > maxStop+1) continue;
             for (Edge v : adj.get(u)) {
-                if (dist[u] + v.Wt < dist[v.node]) {
-                    dist[v.node] = dist[u] + v.Wt;
+                if (distance + v.Wt < dist[v.node]) {
+                    dist[v.node] = distance + v.Wt;
                     queue.add(new int[]{stop + 1, v.node, distance + v.Wt});
                 }
             }
@@ -635,6 +642,7 @@ public class Graph {
     // add to queue only when not visted
     // once end is reached that will be min path
     // stop when poll give endRow & endColumn
+    // first destination is min since priority queue will give min path first
     private static int minPathEffort(int[][] g) {
         int[][] dist = new int[g.length][g[0].length];
         for (int i = 0; i < g.length; i++) {
@@ -664,13 +672,14 @@ public class Graph {
             //update with min b/w currentMax & dist[vi][vj]
             if (currentMax < dist[vi][vj]) {
                 dist[vi][vj] = currentMax;
-                queue.add(new int[]{vi, vj, currentMax});
+                queue.add(new int[]{currentMax, vi, vj});
             }
         }
     }
 
     //video - 36
     // can be done using simple BFS also
+    // queue is suffice since it has unit length
     private static int shortestDistanceBinaryMaze(int sr, int sc, int dr, int dc, int[][] g) {
 
         int[][] dist = new int[g.length][g[0].length];
@@ -678,6 +687,7 @@ public class Graph {
             Arrays.fill(dist[i], Integer.MAX_VALUE);
         }
         dist[sr][sc] = 0;
+        //or PQ
         Queue<int[]> queue = new ArrayDeque<>();
         queue.add(new int[]{sr, sc, 0});
         while (!queue.isEmpty()) {
@@ -726,7 +736,7 @@ public class Graph {
         }
         List<Integer> path = new ArrayList<>();
         int node = adj.size() - 2;
-        while (node != parent[node]) {
+        while (node != parent[node] || node!=start) {
             path.add(node);
             node = parent[node];
         }
@@ -742,7 +752,8 @@ public class Graph {
     //min distance from start to end
     //does not work for negative weight Or negative cycle
     //SSST
-    //for directed & undirectrd graph
+    //for directed & undirected graph
+    // source to all Node distance
     private static void dijkstraShortestPathLength(int start, List<List<Edge>> adj) {
         Queue<Edge> queue = new PriorityQueue<>(Comparator.comparingInt(Edge::getWt).thenComparing(Edge::getNode));
         queue.add(new Edge(start, 0));
@@ -759,7 +770,7 @@ public class Graph {
                 //for u-w->v if dist[u]+v.w <dist[v] then update
                 if (dist[u.getNode()] + v.getWt() < dist[v.getNode()]) {
                     dist[v.getNode()] = dist[u.getNode()] + v.getWt();
-                    queue.add(v);
+                    queue.add(new Edge(v.node,dist[u.node]+v.getWt()));
                 }
         }
         //return distance stored at last index
@@ -869,7 +880,7 @@ public class Graph {
     }
 
     //video - 29
-    //Time Complexity: O(Number of input words * M(lenght of each work) * 26)
+    //Time Complexity: O(Number of input words * M(length of each word) * 26)
     private static int wordLadder1(char[] startWord, String targetWord, String[] wordList) {
 
         Set<String> set = new HashSet<>(List.of(wordList));
@@ -894,9 +905,9 @@ public class Graph {
         return 0;
     }
 
-    static class LadderList {
-        List<String> list;
-        int level;
+    public static class LadderList {
+        public List<String> list;
+        public int level;
 
         public LadderList(List<String> list1, int level) {
             list = new ArrayList<>(list1);
@@ -904,9 +915,9 @@ public class Graph {
         }
     }
 
-    static class Ladder {
+    public static class Ladder {
         char[] word;
-        int len;
+        public int len;
 
         public Ladder(char[] s, int len) {
             this.word = s.clone();
@@ -927,6 +938,7 @@ public class Graph {
     //[0, 1, 2, 1, 2, 3, 3, 4, 4]
     //video - 28
     //same as prev , only change is distance is 1
+    //plain BFS
     private static int[] shortestPathWithoutAlgoUG(int startNode, List<List<Integer>> adj) {
         int size = adj.size();
         int dist[] = new int[size];
@@ -952,6 +964,7 @@ public class Graph {
     //dist[u]+v.Wt
     //[5, 7, 3, 6, 2, 3, 0]
     //video-27
+    // from startNode to all other Nodes
     private static int[] shortestPathWeightedWithoutAlgo(int startNode, List<List<Edge>> adj) {
         List<Integer> list = kahnTopoWithEdges(adj);
         Stack<Integer> stack = new Stack<>();
@@ -1001,7 +1014,7 @@ public class Graph {
     }
 
 
-    static class Edge {
+    public static class Edge {
         int node;
         int Wt;
 
@@ -1054,12 +1067,10 @@ public class Graph {
     }
 
     //video - 25
-    private static void safeStatesAnotherWay(List<List<Integer>> adj) {
+    private static void eventualSafeStates(List<List<Integer>> adj) {
         //reverse edges
-        // take terminal nodes
-        // & keep on doing kahn algo
+        // do kahn algo
         // unsafe nodes is never visited
-
         int size = adj.size();
         List<List<Integer>> revAdj = new ArrayList<>();
         for (int i = 0; i < size; i++) {
@@ -1072,6 +1083,7 @@ public class Graph {
                 revAdj.get(v).add(u);
             }
         }
+
         int[] inDegree = new int[size];
         for (int u = 0; u < size; u++) {
             for (Integer v : revAdj.get(u)) {
@@ -1153,10 +1165,10 @@ public class Graph {
 
     //cycle detection using kahn algo
     //video - 23
-    private static boolean cycleDetectionKahn(List<List<Integer>> adj) {
+    private static boolean cycleDetectionKahn(int totalNodes,List<List<Integer>> adj) {
         List<Integer> list = kahnTopo(adj);
-        if (list.size() == adj.size()) return true;
-        return false;
+        if (list.size() == totalNodes) return false;
+        return true;
     }
 
     //video - 22
@@ -1213,8 +1225,10 @@ public class Graph {
     }
 
     //video - 20
+    // node from which all path lead to terminal node is safe node
     //any1 part of cycle cannot be safe node
     //any1 leads to cycle cannot be safe node
+    //O(V+2E)
     private static List<Integer> safeStates(List<List<Integer>> adj) {
         int size = adj.size();
         boolean vis[] = new boolean[size];
@@ -1238,7 +1252,8 @@ public class Graph {
         pathvis[node] = true;
         safe[node] = false;
         for (Integer temp : adj.get(node)) {
-            if (vis[temp] && pathvis[temp]) return true;
+            //cycle
+            if (vis[temp] && pathvis[temp]) return false;
             else if (!vis[temp]) {
                 if (doDFSSafeStates(temp, vis, pathvis, adj, safe)) return true;
             }
@@ -1252,7 +1267,7 @@ public class Graph {
 
     //TC -> V+E
     //video - 19
-    // is Cycle if & only if visited & pathvisted
+    // is Cycle if & only if visited & pathvisted is true
     // have to visit same node on same path that is why it is pathVisited
     private static boolean cycleDirected(List<List<Integer>> adj) {
         int size = adj.size();
@@ -1298,8 +1313,7 @@ public class Graph {
         for (Integer child : adj.get(parent)) {
             //if not colored
             if (col[child] == -1) {
-                if (val == 1) isBiparTiteUsingDFS(child, col, adj, 0);
-                else isBiparTiteUsingDFS(child, col, adj, 0);
+                if(isBiparTiteUsingDFS(child, col, adj, 1-val)==false) return false;
             } else if (col[child] == col[parent]) return false;
         }
         return true;
@@ -1308,6 +1322,7 @@ public class Graph {
 
     //TC - > Simiar to BFS/DFS
     //video=17
+    // if you can color graph such that no two adjacent node have same color
     //linear graph with no cycle is always biPartite
     // any graph with even cycle length is always biPartite
     // any graph with odd cycle length is never biPartite
@@ -1322,8 +1337,7 @@ public class Graph {
             for (Integer child : adj.get(parent)) {
                 //if not visited/colored
                 if (col[child] == -1) {
-                    if (col[parent] == 0) col[child] = 1;
-                    else col[child] = 0;
+                    col[child] = 1 - col[parent] ;
                     queue.add(child);
                 } else if (col[child] == col[parent]) return false;
             }
@@ -1532,7 +1546,7 @@ public class Graph {
             if (!vis[child]) {
                 vis[child] = true;
                 if (doCheckCycle(child, node, adj, vis)) return true;
-            } else if (child != parent && parent!=-1) return true;
+            } else if (child != parent && parent != -1) return true;
         }
         return false;
     }
@@ -1555,7 +1569,7 @@ public class Graph {
                 if (!vis[child]) {
                     vis[child] = true;
                     queue.add(new int[]{child, node});
-                } else if (child != parent) return true;
+                } else if (child != parent && parent != -1) return true;
             }
         }
         return false;
@@ -1564,13 +1578,14 @@ public class Graph {
     //TC -> O(N*M)
     //video - 10
     private static int timeToRottenOranges(int[][] g) {
-        Queue<int[]> queue = new ArrayDeque<>();
 
+        Queue<int[]> queue = new ArrayDeque<>();
         for (int i = 0; i < g.length; i++) {
             for (int j = 0; j < g[0].length; j++) {
                 if (g[i][j] == 2) queue.add(new int[]{i, j, 0});
             }
         }
+
         boolean[][] vis = new boolean[g.length][g[0].length];
         int ans = 0;
         while (!queue.isEmpty()) {
@@ -1597,6 +1612,7 @@ public class Graph {
     }
 
     //video - 9
+    //O(N*M)*4
     public int[][] floodFill(int[][] a, int sr, int sc, int color) {
         f(sr, sc, a, a[sr][sc], color);
         return a;
@@ -1611,6 +1627,46 @@ public class Graph {
         f(i - 1, j, a, oldColor, newColor);
         f(i, j + 1, a, oldColor, newColor);
         f(i, j - 1, a, oldColor, newColor);
+    }
+
+    //video-8
+    private static int numberOfIsland(int m, int n, int[][] grid) {
+        boolean vis[][]=new boolean[m][n];
+        int count=0;
+        for (int i = 0; i <m ; i++) {
+            for (int j = 0; j <n ; j++) {
+                if(grid[i][j]==1 && !vis[i][j]){
+                    count++;
+                    visitAll8Corner(i,j,m,n,vis,grid);
+                    vis[i][j]=true;
+                }
+            }
+        }
+        return count;
+    }
+
+    private static void visitAll8Corner(int i, int j, int m, int n, boolean[][] vis, int[][] grid) {
+        Queue<int[]> queue=new ArrayDeque<>();
+        queue.add(new int[]{i,j});
+        while (!queue.isEmpty()){
+            int[] polled = queue.poll();
+            for (int di = -1; di <=1 ; di++) {
+                for (int dj = -1; dj <=1 ; dj++) {
+                    if(di==dj)continue;
+                    int newRow=polled[0]+di;
+                    int newCol=polled[1]+dj;
+                    if(isValidCell(newRow,newCol,m,n) && grid[newRow][newCol]==1 && !vis[newRow][newCol]){
+                        queue.add(new int[]{newRow,newCol});
+                        vis[newRow][newCol]=true;
+                    }
+                }
+            }
+        }
+    }
+
+    private static boolean isValidCell(int newRow, int newCol, int m, int n) {
+        if(newRow>=0 && newRow<m && newCol>=0 && newCol<n) return true;
+        return false;
     }
 
     //using recursion
@@ -1659,18 +1715,11 @@ public class Graph {
     //TC - >O(n)+O(2E) where 2E is total degree of graph
     //video - 6
     private static void dfs(int startNode, boolean[] vis, List<List<Integer>> adj) {
-        Stack<Integer> stack = new Stack<>();
-        stack.add(startNode);
-        while (!stack.isEmpty()) {
-            Integer temp = stack.pop();
-            if (!vis[temp]) {
-                vis[temp] = true;
-                System.out.print(temp + " ");
-                for (int neighbour : adj.get(temp)) {
-                    if (!vis[neighbour]) {
-                        stack.add(neighbour);
-                    }
-                }
+        vis[startNode] = true;
+        System.out.print(startNode + " ");
+        for (int neighbour : adj.get(startNode)) {
+            if (!vis[neighbour]) {
+                dfs(neighbour, vis, adj);
             }
         }
     }
@@ -1681,16 +1730,15 @@ public class Graph {
         Queue<Integer> queue = new ArrayDeque<>();
         boolean[] vis = new boolean[adj.size()];
         queue.add(startNode);
-        vis[startNode]=true;
+        vis[startNode] = true;
+        //1 2 6 3 4 7 9 5 8
         while (!queue.isEmpty()) {
             Integer node = queue.poll();
-            if (!vis[node]) {
-                vis[node] = true;
-                System.out.print(node + " ");
-                for (int neighbour : adj.get(node)) {
-                    if (!vis[neighbour]) {
-                        queue.add(neighbour);
-                    }
+            System.out.print(node + " ");
+            for (int neighbour : adj.get(node)) {
+                if (!vis[neighbour]) {
+                    queue.add(neighbour);
+                    vis[neighbour] = true;
                 }
             }
         }
