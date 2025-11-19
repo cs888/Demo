@@ -555,7 +555,7 @@ public class Array {
                 break;
             }
         }
-        //return sorted array if array already sorted
+        //return reveresed array if array already sorted
         if (ind == -1) {
             Arrays.sort(a);
             return;
@@ -633,23 +633,24 @@ public class Array {
     }
 
     //  for only postive & zeros in array
-    public static int longestSubarrayWithSumK(int[] a, long k) {
-
-        long tempSum = 0;
-        int len = 0, r = 0, l = 0;
-        while (r < a.length) {
-            if (tempSum > k) {
-                tempSum -= a[l++];
-                continue;
-            } else if (tempSum == k) {
-                // had taken till last sum so it will r-l not r-l+1
-                len = Math.max(len, r - l);
+    // only for positivies & 0
+    private static int maxSubArraySumLenUsing2Pointer(int n, int requiredSum, int[] a) {
+        int right=0,left=0,tempSum = 0,len = 0;
+        while (left<n ){
+            if (tempSum > requiredSum) {
+                tempSum -= a[left];
+                left++;
             }
-            tempSum += a[r++];
+            if (tempSum == requiredSum) {
+                //not right-left+1 because already did right++ in else block after adding to sum
+                len = Math.max(len, right - left);
+                tempSum -= a[left];
+                left++;
+            } else {
+                tempSum += a[right];
+                if (right < n - 1) right++;
+            }
         }
-        // for last Element
-        if (tempSum == k)
-            len = Math.max(len, r - l);
         return len;
     }
 
@@ -680,6 +681,7 @@ public class Array {
         for (int i = 0; i < N - 1; i++) {
             xor1 ^= a[i] ^ (i + 1);
         }
+        //for last N as it was not taken in last loop
         xor1 ^= N;
         return xor1;
     }

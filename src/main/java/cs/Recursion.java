@@ -1,43 +1,16 @@
-package cs.rec;
+package cs;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static cs.ArrayDemo.swap;
-
 public class Rec {
     public static void main(String[] args) {
-        int g[][] = new int[4][4];
-        int a[][] = {
-                {1, 0, 0, 0},
-                {1, 1, 0, 1},
-                {1, 1, 0, 0},
-                {0, 1, 1, 1}
-        };
-        int p[] = new int[0];
 
-        List<List<Integer>> collect = List.of(Arrays.stream(p).boxed().toList());
+        int a[] = {1, 2, 1};
+        System.out.println(countSubsetSum(0, a, new ArrayList<>(), 0, 2));
 
-        List<List<Integer>> graph = new ArrayList<>();
-        for (int i = 0; i < 4; i++) {
-            graph.add(i, new ArrayList<>());
-        }
-
-        graph.get(0).addAll(List.of(1, 2, 3));
-        graph.get(1).addAll(List.of(0, 2));
-        graph.get(2).addAll(List.of(0, 1, 3));
-        graph.get(3).addAll(List.of(0, 2));
-        int col[] = new int[4];
-        List<Integer> ans = new ArrayList<>();
-        ans.add(1);
-        ans.add(2);
-        ans.add(3);
-        int[] ar = {5, 3, 2, 4, 1};
-        int ms = countInversion(0, ar.length - 1, ar);
-        System.out.println(Arrays.toString(ar));
-        System.out.println(ms);
     }
 
     // Time Complexity: O(N*logN), where N = size of the given array.
@@ -617,18 +590,73 @@ public class Rec {
 
     }
 
-    //sum problem
-    private static int summ(int i, int[] a, ArrayList<Integer> temp, int sum) {
+    //count of sum problem
+    private static int countSubsetSum(int i, int[] a, ArrayList<Integer> temp, int sum, int requiredSum) {
         if (i == a.length) {
-            if (sum == 2) return 1;
+            if (sum == requiredSum) return 1;
             return 0;
         }
 
         temp.add(a[i]);
-        int l = summ(i + 1, a, temp, sum + a[i]);
+        int l = countSubsetSum(i + 1, a, temp, sum + a[i], requiredSum);
         temp.remove(temp.size() - 1);
 
-        int r = summ(i + 1, a, temp, sum);
+        int r = countSubsetSum(i + 1, a, temp, sum, requiredSum);
         return l + r;
+    }
+
+    //print all subsets
+    //video - 7
+    private static boolean printSingleSubsetSum(int i, int[] a, ArrayList<Integer> temp, int sum, int requiredSum) {
+        if (i == a.length) {
+            if (sum == requiredSum) {
+                System.out.println(temp);
+                return true;
+            }
+            return false;
+        }
+
+        //take
+        temp.add(a[i]);
+        if (printSingleSubsetSum(i + 1, a, temp, sum + a[i], requiredSum)) return true;
+        temp.remove(temp.size() - 1);
+
+        //not take
+        if (printSingleSubsetSum(i + 1, a, temp, sum, requiredSum)) return true;
+        return false;
+    }
+
+    //print all subsets
+    //video - 7
+    private static void printSubsetSum(int i, int[] a, ArrayList<Integer> temp, int sum, int requiredSum) {
+        if (i == a.length) {
+            if (sum == requiredSum) System.out.println(temp);
+            return;
+        }
+
+        //take
+        temp.add(a[i]);
+        printSubsetSum(i + 1, a, temp, sum + a[i], requiredSum);
+        temp.remove(temp.size() - 1);
+
+        //not take
+        printSubsetSum(i + 1, a, temp, sum, requiredSum);
+    }
+
+    //video -6
+    private static void printSubSequence(int i, int a[], ArrayList<Integer> list) {
+
+        if (i == a.length) {
+            System.out.println(list);
+            return;
+        }
+        //take
+        list.add(a[i]);
+        printSubSequence(i + 1, a, list);
+        list.remove(list.size() - 1);
+
+        //not take
+        printSubSequence(i + 1, a, list);
+
     }
 }
