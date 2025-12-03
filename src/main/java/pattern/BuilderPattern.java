@@ -2,7 +2,7 @@ package pattern;
 
 public class BuilderPattern {
     public static void main(String[] args) {
-        Emp emp= new Emp.Builder().name("chandra").age(100).build();
+        Emp emp= Emp.builder().name("chandra").age(100).build();
     }
 }
 
@@ -15,6 +15,9 @@ public class BuilderPattern {
         this.name = builder.name;
     }
 
+     public static Builder builder() {
+         return new Builder();
+     }
     public static class Builder {
 
         String name;

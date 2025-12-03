@@ -22,6 +22,7 @@ public class DP {
     }
 
     //DP - 56
+    // min of diag,up,left +1 , skipping 0th row , 0th Col
     public int countNumberOfSquares(int[][] matrix) {
         int dp[][] = new int[matrix.length][matrix[0].length];
         int count = 0;
@@ -76,7 +77,7 @@ public class DP {
                 int height = a[st.pop()];
                 int width;
                 if (st.empty()) width = i;
-                else width = i - st.peek() - 1;
+                else width = i - (st.peek() + 1);
                 maxA = Math.max(maxA, width * height);
             }
             st.push(i);
@@ -115,11 +116,13 @@ public class DP {
     }
 
     //dp - 54
+    // pass a[0] as max
     private static int pa(int i, int[] a, int k, int maxValTillNow) {
         if (i >= a.length) return 0;
         int maxi = Integer.MIN_VALUE;
         for (int j = i; j < Math.min(i + k, a.length); j++) {
-            int max = ((j - i + 1) * maxValTillNow) + pa(j + 1, a, k, Math.max(maxValTillNow, a[j]));
+            int max = (j - i + 1) * maxValTillNow
+                      + pa(j + 1, a, k, Math.max(maxValTillNow, a[j]));
             maxi = Math.max(maxi, max);
         }
         return maxi;
@@ -159,7 +162,7 @@ public class DP {
 
     //video - 53
     //mininum number of partitions required for string
-    // fron partion
+    // from partion
     private static int pallindromePartitioning(int i, char[] s) {
         if (i >= s.length) return 0;
         int mini = Integer.MAX_VALUE;
@@ -401,6 +404,7 @@ public class DP {
         return dp[1][n - 1];
     }
 
+    // mm(1,a.length-1,a,dp)
     private static int mm(int i, int j, int[] a, int[][] dp) {
         if (i == j) return 0;
         if (dp[i][j] != 0) return dp[i][j];
@@ -812,7 +816,7 @@ public class DP {
     }
 
     // video - 36
-    //1 txn at at time
+    //infinite txn at at time
     private static int stock2(int i, int buy, int[] a) {
         if (i >= a.length) return 0;
 
@@ -883,7 +887,7 @@ public class DP {
     private static boolean wild(int i, int j, char[] t, char[] p) {
         if (i < 0 && j < 0) return true;
         if (i < 0 && j >= 0) return false;
-        if (j < 0 && i >= 0) {
+        if (i >= 0 && j < 0) {
             for (int k = 0; k <= i; k++) {
                 if (t[k] != '*') return false;
             }

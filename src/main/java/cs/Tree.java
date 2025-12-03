@@ -34,7 +34,7 @@ public class Tree {
         int max;
         int size;
 
-        public NodeValue(int size, int min, int max) {
+        public NodeValue( int min,int size, int max) {
             this.size = size;
             this.min = min;
             this.max = max;
@@ -45,17 +45,18 @@ public class Tree {
 
     //TC 0(N)
     private static NodeValue largestBSTTreeHelper(TreeNode root) {
-        if (root == null) return new NodeValue(0, Integer.MAX_VALUE, Integer.MIN_VALUE);
+        //match with all
+        if (root == null) return new NodeValue(Integer.MAX_VALUE,0, Integer.MIN_VALUE);
 
         NodeValue left = largestBSTTreeHelper(root.left);
         NodeValue right = largestBSTTreeHelper(root.right);
 
         // is BST
         if (left.max < root.data && root.data < right.min)
-            return new NodeValue(1 + left.size + right.size, Math.max(root.data,right.max), Math.min(root.data, left.min));
+            return new NodeValue(Math.min(root.data, left.min), 1 + left.size + right.size, Math.max(root.data, right.max));
 
-        //not BST
-        return new NodeValue(Math.max(left.size, right.size), Integer.MIN_VALUE, Integer.MAX_VALUE);
+        //not BST , match with none
+        return new NodeValue(Integer.MIN_VALUE, Math.max(left.size, right.size), Integer.MAX_VALUE);
     }
 
     static TreeNode prev = null;
@@ -128,9 +129,9 @@ public class Tree {
 
             public int next() {
                 TreeNode poppedItem = stack.pop();
-                if (increasing && poppedItem.left != null) {
+                if (!increasing && poppedItem.left != null) {
                     addAllToStack(poppedItem.left);
-                } else if (!increasing && poppedItem.right != null) {
+                } else if (increasing && poppedItem.right != null) {
                     addAllToStack(poppedItem.right);
                 }
                 return poppedItem.data;
@@ -153,6 +154,8 @@ public class Tree {
     }
 
     //Iterator class for IMPL
+    // push till all have left not null
+    // pull all if popped->right or popped has right
     class BSTIteratorNextAndHasNext {
         Stack<TreeNode> stack = new Stack<>();
 
@@ -314,8 +317,8 @@ public class Tree {
             if (root.data == key)
                 return root;
             if (root.data < key) {
-                root = root.right;
                 ceil = root;
+                root = root.right;
             } else
                 root = root.left;
         }
@@ -331,8 +334,8 @@ public class Tree {
                 return root;
             if (root.data < key) root = root.right;
             else {
-                root = root.left;
                 ceil = root;
+                root = root.left;
             }
         }
         return ceil;
@@ -430,6 +433,7 @@ public class Tree {
     //video - 36
     //do level order for serialize , it is one of many ways
     public static String serialize(TreeNode root) {
+        if(root ==null) return "";
         Queue<TreeNode> queue = new LinkedList<>();
         queue.add(root);
         StringBuffer ans = new StringBuffer();
@@ -453,6 +457,7 @@ public class Tree {
 
     // Decodes your encoded data to tree.
     public static TreeNode deserialize(String data) {
+        if(data=="") return null;
         String[] splitted = data.split(",");
         Queue<TreeNode> queue = new LinkedList<>();
         int i = 0;

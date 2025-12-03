@@ -1,5 +1,7 @@
 package cs.graph;
 
+import org.junit.experimental.max.MaxHistory;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -76,17 +78,18 @@ public class Graph {
     private static void doDfsArticulationPoint(int node, boolean[] vis, List<List<Integer>> adj, int[] low, List<List<Integer>> ans, int insertionTime, int parent, int[] tin) {
         vis[node] = true;
         tin[node] = low[node] = insertionTime;
-        for (int it : adj.get(node)) {
-            if (it == parent) continue;
-            if (!vis[it]) {
-                doDfsArticulationPoint(it, vis, adj, low, ans, insertionTime + 1, node, tin);
-                low[node] = Math.min(low[node], low[it]);
+        for (int child : adj.get(node)) {
+            if (child == parent) continue;
+            if (!vis[child]) {
+                doDfsArticulationPoint(child, vis, adj, low, ans, insertionTime + 1, node, tin);
+                low[node] = Math.min(low[node], low[child]);
                 //do not apply to root
                 // or low[it]>=in[node]
                 //& do not apply to first node
-                if (tin[node] <= low[it] && parent != -1) ans.add(List.of(node));
+                if (tin[node] <= low[child] && parent != -1) ans.add(List.of(node));
             } else {
-                low[node] = Math.min(low[node], tin[it]);
+                //note here condition is changed
+                low[node] = Math.min(low[node], tin[child]);
             }
         }
     }
@@ -94,6 +97,7 @@ public class Graph {
     //video - 55
     //Targen algo
     //logic : if (tin[node] < low[it]) then it is bridge i.e cannot reach back
+    //or tin[node] < low[child]
     // trace all node except parent
     public static int numberOfBridges(int V, List<List<Integer>> edges) {
 
@@ -173,6 +177,15 @@ public class Graph {
         return count;
     }
 
+    private void doDFSForKosa(Integer u, boolean[] vis, List<List<Integer>> tadj) {
+        vis[u] = true;
+        for (int v : tadj.get(u)) {
+            if (!vis[v]) {
+                doDFSForKosa(v, vis, tadj);
+            }
+        }
+    }
+
     private static Stack<Integer> topoSort(List<List<Integer>> adj) {
         Stack<Integer> ans = new Stack<>();
         boolean[] vis = new boolean[adj.size()];
@@ -181,7 +194,6 @@ public class Graph {
                 doTopoSortDfs(i, adj, vis, ans);
             }
         }
-
         return ans;
     }
 
@@ -195,15 +207,6 @@ public class Graph {
         ans.add(start);
     }
 
-    private void doDFSForKosa(Integer u, boolean[] vis, List<List<Integer>> tadj) {
-        vis[u] = true;
-        for (int v : tadj.get(u)) {
-            if (!vis[v]) {
-                doDFSForKosa(v, vis, tadj);
-            }
-        }
-    }
-
     private Stack<Integer> dsfNodeInLastFinisTime(ArrayList<ArrayList<Integer>> adj) {
         return null;
     }
@@ -212,7 +215,7 @@ public class Graph {
     //logic : treat each row & each column as single node
     //edges are given
     //TODO:not working correctly
-    int maxRemove(int[][] stones, int n) {
+    int maxRemove(int[][] stones, int numberOfStones) {
         //return number_of_stones-number of connected Componenets
 
         int maxCol = 0;
@@ -233,53 +236,57 @@ public class Graph {
             stoneNodes.add(colNode + 1 + maxRow);
         }
         //get count of numberOfComponents
-        int numberOfComponents = (int) stoneNodes.stream().filter(key -> DisjointSet.getUltimateParent(key) == key).count();
+        int numberOfComponents = (int) stoneNodes.stream().filter(key -> DisjointSet.getUltimateParent(key) != key).count();
         //have to do extra stuff
-        return n - numberOfComponents;
+        return numberOfStones - numberOfComponents;
     }
 
     //video - 52
-    //TODO: wrong answer
     public static int maxConnection(int grid[][]) {
         int row = grid.length;
         int col = grid[0].length;
-        DisjointSet DisjointSet = new DisjointSet(row * col);
+        DisjointSet disjointSet = new DisjointSet(row * col);
+        //makeDisjoint graph
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
                 if (grid[i][j] == 0) continue;
-                checkCornerAndAddToDisjointSet(i, j, i - 1, j, grid, DisjointSet, col);
-                checkCornerAndAddToDisjointSet(i, j, i + 1, j, grid, DisjointSet, col);
-                checkCornerAndAddToDisjointSet(i, j, i, j - 1, grid, DisjointSet, col);
-                checkCornerAndAddToDisjointSet(i, j, i, j + 1, grid, DisjointSet, col);
+                checkCornerAndAddToDisjointSet(i, j, i - 1, j, grid, disjointSet, col);
+                checkCornerAndAddToDisjointSet(i, j, i + 1, j, grid, disjointSet, col);
+                checkCornerAndAddToDisjointSet(i, j, i, j - 1, grid, disjointSet, col);
+                checkCornerAndAddToDisjointSet(i, j, i, j + 1, grid, disjointSet, col);
             }
         }
         int ans = 0;
-        Set<Integer> visitedParent = new HashSet<>();
         for (int i = 0; i < row; i++) {
             for (int j = 0; j < col; j++) {
+                Set<Integer> visitedParent = new HashSet<>();
                 int temp = 0;
                 if (grid[i][j] == 0) {
-                    temp += checkCornerElement(i - 1, j, grid, DisjointSet, col, visitedParent);
-                    temp += checkCornerElement(i + 1, j, grid, DisjointSet, col, visitedParent);
-                    temp += checkCornerElement(i, j - 1, grid, DisjointSet, col, visitedParent);
-                    temp += checkCornerElement(i, j + 1, grid, DisjointSet, col, visitedParent);
+                    checkCornerElement(i - 1, j, grid, disjointSet, col, visitedParent);
+                    checkCornerElement(i + 1, j, grid, disjointSet, col, visitedParent);
+                    checkCornerElement(i, j - 1, grid, disjointSet, col, visitedParent);
+                    checkCornerElement(i, j + 1, grid, disjointSet, col, visitedParent);
                 }
-                ans = Math.max(ans, temp + 1);
+                for (Integer parent:visitedParent) temp+=disjointSet.size[parent];
+                //+1 since need to change 0 to 1
+                ans = Math.max(ans, temp+1);
             }
         }
+
+        //case in all cell is val is 1
+        for (int cell = 0; cell < row*row; cell++) {
+            ans= Math.max(ans,disjointSet.getUltimateParent(cell));
+        }
+
         return ans;
     }
 
-    private static int checkCornerElement(int i, int j, int[][] g, DisjointSet DisjointSet, int col, Set<Integer> visitedUltimateParentSet) {
-        int nodeNumber = i * col + j;
-        int ultimateParent = DisjointSet.getUltimateParent(nodeNumber);
-        if (visitedUltimateParentSet.contains(ultimateParent)) return 0;
+    private static void checkCornerElement(int i, int j, int[][] g, DisjointSet disjointSet, int col, Set<Integer> visitedUltimateParentSet) {
         if (isSafe(i, j, g) && g[i][i] == 1) {
+            int nodeNumber = i * col + j;
+            int ultimateParent = disjointSet.getUltimateParent(nodeNumber);
             visitedUltimateParentSet.add(ultimateParent);
-            int size = DisjointSet.size[ultimateParent];
-            return size;
         }
-        return 0;
     }
 
     private static void checkCornerAndAddToDisjointSet(int previ, int prevj, int i, int j, int[][] g, DisjointSet DisjointSet, int col) {
@@ -289,6 +296,46 @@ public class Graph {
             int curNode = i * col + j;
             DisjointSet.groupBySize(prevNode, curNode);
         }
+    }
+
+    //video - 51
+    public static List<Integer> OnlineQueries(int[][] operators) {
+        int row = operators.length;
+        int col = operators[0].length;
+        DisjointSet DisjointSet = new DisjointSet(row * col);
+        List<Integer> ans = new ArrayList<>();
+
+        int[][] visited = new int[row][col];
+        int count = 0;
+        for (int i = 0; i < row; i++) {
+            int di = operators[i][0], dj = operators[i][1];
+            if (visited[di][dj] == 1) ans.add(count);
+            else {
+                count++;
+                visited[di][dj] = 1;
+                int temp = 0;
+                temp += checkCornerElementOnlineQueries(di - 1, dj, di, dj, visited, DisjointSet, col);
+                temp += checkCornerElementOnlineQueries(di + 1, dj, di, dj, visited, DisjointSet, col);
+                temp += checkCornerElementOnlineQueries(di, dj - 1, di, dj, visited, DisjointSet, col);
+                temp += checkCornerElementOnlineQueries(di, dj + 1, di, dj, visited, DisjointSet, col);
+                count -= temp;
+                ans.add(count);
+            }
+        }
+        return ans;
+    }
+
+    private static int checkCornerElementOnlineQueries(int i, int j, int di, int dj, int[][] g, DisjointSet disjointSet, int col) {
+
+        if (isSafe(i, j, g) && g[i][i] == 1) {
+            int nodeNumber = i * col + j;
+            int prevNodeNumber = di * col + dj;
+            if (disjointSet.getUltimateParent(nodeNumber) != disjointSet.getUltimateParent(prevNodeNumber)) {
+                disjointSet.groupBySize(nodeNumber, prevNodeNumber);
+                return 1;
+            }
+        }
+        return 0;
     }
 
     //video - 50
@@ -382,7 +429,7 @@ public class Graph {
     }
 
     //video - 47
-    //sort edges
+    //sort edges according to weight
     //keep adding if not in same component
     // for finding MST
     private static void krushkalMST(List<List<Integer>> edges) {
@@ -512,12 +559,14 @@ public class Graph {
 
     //video - 41
     //work for Directed Graph as well as un-directed , if UDG then add both edges
-    //for negative cycles or negative edges
+    //for negative cycles(path weight less than zero) or negative edges
     //for shortest path , SSST
     // TC-> V+E
+    //input is list of edges
     private static int[] bellManFord(List<List<Integer>> adj) {
         int[] dist = new int[adj.size() - 1];
         Arrays.fill(dist, Integer.MAX_VALUE);
+        //mark source node as zero(0)
         dist[0] = 0;
 
         //relaxation of edges for N-1 times , where N total number of nodes startig at index 1
@@ -590,7 +639,7 @@ public class Graph {
         Arrays.fill(dis, Integer.MAX_VALUE);
         //steps,queue
         Queue<int[]> queue = new ArrayDeque<>();
-        queue.add(new int[]{start, 0});
+        queue.add(new int[]{0, start});
         a[start]=0;
         while (!queue.isEmpty()) {
             int[] temp = queue.poll();
@@ -639,7 +688,7 @@ public class Graph {
 
     //video - 37
     //logic is : keep diff as Math.max(diff,abs(u cell value- v cell value)
-    // add to queue only when not visted
+    // add to queue only when got lesser distance
     // once end is reached that will be min path
     // stop when poll give endRow & endColumn
     // first destination is min since priority queue will give min path first
@@ -768,6 +817,7 @@ public class Graph {
             Edge u = queue.poll();
             for (Edge v : adj.get(u.getNode()))
                 //for u-w->v if dist[u]+v.w <dist[v] then update
+                // u.getWt or dist[u.getNode() anyone will work
                 if (dist[u.getNode()] + v.getWt() < dist[v.getNode()]) {
                     dist[v.getNode()] = dist[u.getNode()] + v.getWt();
                     queue.add(new Edge(v.node,dist[u.node]+v.getWt()));
