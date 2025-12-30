@@ -1,9 +1,6 @@
 package cs;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.PriorityQueue;
-import java.util.Queue;
+import java.util.*;
 
 public class BinarySearch {
 
@@ -70,6 +67,7 @@ public class BinarySearch {
     }
 
     //BS-25 , OR can be solved same as BS-24
+    // sorted row-wise
     public static boolean findInMatrix(int target, ArrayList<ArrayList<Integer>> a) {
         int n = a.size(), m = a.get(0).size();
         int row = 0, col = m - 1;
@@ -84,14 +82,15 @@ public class BinarySearch {
     }
 
     //BS-24
+    //both row and columnwise sorted
     static boolean searchMatrix(ArrayList<ArrayList<Integer>> a, int target) {
 
-        int n = a.size(), m = a.get(0).size();
-        int l = 0, r = n * m - 1;
+        int totalRow = a.size(), totalCol = a.get(0).size();
+        int l = 0, r = totalRow * totalCol - 1;
         while (l <= r) {
             int mid = l + r >> 1;
-            int row = mid / m;
-            int col = mid % m;
+            int row = mid / totalCol;
+            int col = mid % totalCol;
             int val = a.get(row).get(col);
             if (val == target) return true;
             if (target > val) l = mid + 1;
@@ -104,12 +103,12 @@ public class BinarySearch {
     //BS-23
     public static int rowMaxOnes(ArrayList<ArrayList<Integer>> a, int n, int m) {
 
-        int ithindex = 0, indexVal = 0;
+        int ithindex = 0, maxNOOf1s = 0;
         for (int index = 0; index < n; index++) {
             int ind = fOccurance(1, a.get(index));
-            int nOOf1s = m - ind + 1;
-            if (nOOf1s > indexVal) {
-                indexVal = nOOf1s;
+            int CurrentnOOf1s = m - ind + 1;
+            if (CurrentnOOf1s > maxNOOf1s) {
+                maxNOOf1s = CurrentnOOf1s;
                 ithindex = index;
             }
         }
@@ -164,6 +163,7 @@ public class BinarySearch {
         int n2 = b.length;
         int totLen = n1 + n2;
         if (n1 > n2)
+            //first array should be smaller
             return findMedianSortedArrays(b, a);
         int totalInleft = (n1 + n2 + 1) / 2;
         int low = 0, high = n1;
@@ -280,18 +280,15 @@ public class BinarySearch {
 
         for (int gasStation = 1; gasStation <= k; gasStation++) {
             int[] len = queue.poll();
+            //update current howMany array
             howMany[len[1]] += 1;
+
+            // add currentSectionLength to queue
             curSectionLength = len[0] / (double) (howMany[len[1]] + 1);
             queue.add(new int[]{(int) curSectionLength, len[1]});
         }
 
-        double ans = Integer.MIN_VALUE;
-        for (int i = 0; i < a.length - 1; i++) {
-            int diff = a[i + 1] - a[i];
-            curSectionLength = diff / (howMany[i] + 1);
-            ans = Math.max(ans, curSectionLength);
-        }
-        return ans;
+        return queue.poll()[0];
     }
 
 
@@ -338,11 +335,11 @@ public class BinarySearch {
         int hi = Arrays.stream(a).sum();
 
         while (lo <= hi) {
-            int mid = lo + hi >> 1;
-            int count = getStudentCount(a, mid);
+            int midPages = lo + hi >> 1;
+            int count = getStudentCount(a, midPages);
             //increase mid so that count is less
-            if (count > m) lo = mid + 1;
-            else hi = mid - 1;
+            if (count > m) lo = midPages + 1;
+            else hi = midPages - 1;
         }
         return lo;
     }
@@ -361,7 +358,7 @@ public class BinarySearch {
         return count;
     }
 
-    //BS-17
+    //BS-17 - min distance is maximum
     //max is min or max(min) or r
     // is min means return l
     // is max means return r
@@ -372,6 +369,7 @@ public class BinarySearch {
         int l = 1, r = maxDist;
         while (l <= r) {
             int mid = l + r >> 1;
+            //if possible go for max
             if (canPlaceWithMid(mid, stalls, k)) l = mid + 1;
             else r = mid - 1;
         }
@@ -441,6 +439,7 @@ public class BinarySearch {
         int l = 1, r = Arrays.stream(arr).max().getAsInt();
         while (l <= r) {
             int mid = l + r >> 1;
+            // if we increase mid then value will be less
             if (countThreshold(mid, arr, limit) > limit) l = mid + 1;
             else r = mid - 1;
         }
@@ -724,7 +723,8 @@ public class BinarySearch {
     //BS-3
     public static int[] firstAndLastPosition(ArrayList<Integer> arr, int n, int k) {
         int first = first(arr, n, k);
-        if (arr.get(first) != k || first == n)
+        //not in array or is at last Index then
+        if (arr.get(first) != k || first == n-1)
             return new int[]{-1, -1};
         int last = last(arr, n, k);
         return new int[]{first, last - 1};
@@ -792,7 +792,7 @@ public class BinarySearch {
         return ans;
     }
 
-    // lower bound is defined as smallest index such that a[i]>target
+    // upper bound is defined as smallest index such that a[i]>target
     private static int upperBound(int[] a, int target) {
 
         int l = 0;

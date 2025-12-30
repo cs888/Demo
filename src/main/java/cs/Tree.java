@@ -45,7 +45,7 @@ public class Tree {
 
     //TC 0(N)
     private static NodeValue largestBSTTreeHelper(TreeNode root) {
-        //match with all
+        //match with all   min,size,max
         if (root == null) return new NodeValue(Integer.MAX_VALUE,0, Integer.MIN_VALUE);
 
         NodeValue left = largestBSTTreeHelper(root.left);
@@ -177,9 +177,7 @@ public class Tree {
 
         public int next() {
             TreeNode pop = stack.pop();
-            if (pop.right != null) {
-                addAllToStack(pop.right);
-            }
+             addAllToStack(pop.right);
             return pop.data;
         }
     }
@@ -289,6 +287,9 @@ public class Tree {
 
     //video- 43
     private static TreeNode insertBST(TreeNode root, int item) {
+        if (root == null) {
+            return new TreeNode(item);
+        }
         TreeNode cur = root;
         while (cur != null) {
             if (item >= cur.data) {
@@ -355,11 +356,11 @@ public class Tree {
         TreeNode cur = node;
         while (cur != null) {
             if (cur.left != null) {
-                TreeNode tempPredCessor = cur.left;
-                while (tempPredCessor.right != null) {
-                    tempPredCessor = tempPredCessor.right;
+                TreeNode temp = cur.left;
+                while (temp.right != null) {
+                    temp = temp.right;
                 }
-                tempPredCessor.right = cur.right;
+                temp.right = cur.right;
                 cur.right = cur.left;
                 cur.left = null;
             }
@@ -370,6 +371,9 @@ public class Tree {
 
     //O(n)
     //flatten step - 2
+    // logic for recursion: make cur.lef=null; now cur.right should be cur.left which is from stack ,
+    // so cur.left should should be top , which means insert first cur.right then cur.left
+    // since iterative of recursion is using stack , add root to stack and keep on going
     private static void flattenBinaryTree2(TreeNode root) {
 
         Stack<TreeNode> stack = new Stack<>();
@@ -411,17 +415,17 @@ public class Tree {
                 inOrder.add(cur.data);
                 cur = cur.right;
             } else {//case - 2
-                TreeNode tempPredCessor = cur.left;
-                while (tempPredCessor.right != null || tempPredCessor.right != cur) {
-                    tempPredCessor = tempPredCessor.right;
+                TreeNode temp = cur.left;
+                while (temp.right != null || temp.right != cur) {
+                    temp = temp.right;
                 }
                 //add link
-                if (tempPredCessor.right == null) {
-                    tempPredCessor.right = cur;
+                if (temp.right == null) {
+                    temp.right = cur;
                     cur = cur.left;
                 } else {
                     //cut link
-                    tempPredCessor.right = null;
+                    temp.right = null;
                     inOrder.add(cur.data);
                     cur = cur.right;
                 }
@@ -461,8 +465,8 @@ public class Tree {
         String[] splitted = data.split(",");
         Queue<TreeNode> queue = new LinkedList<>();
         int i = 0;
-        queue.add(new TreeNode(Integer.valueOf(splitted[i++])));
-        TreeNode root = null;
+        TreeNode root = new TreeNode(Integer.valueOf(splitted[i++]));
+        queue.add(root);
         while (!queue.isEmpty()) {
             TreeNode temp = queue.poll();
             if (root == null) root = temp;
@@ -492,8 +496,8 @@ public class Tree {
 
     //video - 35
     //TC - O(n)
-    private static TreeNode treeFromInorderPostOrder(int is, int ie, int[] inOrder, int ps, int pe, int[] poOrder, Map<Integer, Integer> map) {
-        if (is > ie || ps > pe) return null;
+    private static TreeNode treeFromInorderPostOrder(int is, int ie, int[] inOrder, int preStart, int pe, int[] poOrder, Map<Integer, Integer> map) {
+        if (is > ie || preStart > pe) return null;
         //get last element of poOrder
         int element = poOrder[pe];
         TreeNode root = new TreeNode(element);
@@ -501,8 +505,8 @@ public class Tree {
         //number of element on left side of inorder
         int numberCount = index - is;
         //divide at ps+numsLeft-1
-        root.left = treeFromInorderPostOrder(is, index - 1, inOrder, ps, ps + numberCount - 1, poOrder, map);
-        root.right = treeFromInorderPostOrder(index + 1, ie, inOrder, ps + numberCount, pe - 1, poOrder, map);
+        root.left = treeFromInorderPostOrder(is, index - 1, inOrder, preStart, preStart + numberCount - 1, poOrder, map);
+        root.right = treeFromInorderPostOrder(index + 1, ie, inOrder, preStart + numberCount, pe - 1, poOrder, map);
 
         return root;
     }
@@ -564,24 +568,27 @@ public class Tree {
         Queue<TreeNode> queue = new ArrayDeque<>();
         queue.add(targtNode);
         int burnTime = 0;
-        Map<Integer, Boolean> visited = new HashMap<>();
+        Set<Integer> visited = new HashSet<>();
         while (!queue.isEmpty()) {
             int size = queue.size();
             for (int i = 0; i < size; i++) {
                 TreeNode temp = queue.poll();
-                if (temp.left != null && visited.get(temp.left.data) != Boolean.TRUE) {
+                visited.add(temp.data);
+
+                if (temp.left != null && !visited.contains(temp.left.data)) {
                     queue.add(temp.left);
-                    visited.put(temp.left.data, Boolean.TRUE);
+                    visited.add(temp.left.data);
                 }
-                if (temp.right != null && visited.get(temp.right.data) != Boolean.TRUE) {
+
+                if (temp.right != null && !visited.contains(temp.right.data)) {
                     queue.add(temp.right);
-                    visited.put(temp.right.data, Boolean.TRUE);
+                    visited.add(temp.right.data);
                 }
-                if (map.get(temp.data) != null && visited.get(temp.data) != Boolean.TRUE) {
+
+                if (map.get(temp.data) != null && !visited.contains(temp.data)) {
                     queue.add(map.get(temp.data));
-                    visited.put(map.get(temp.data).data, Boolean.TRUE);
+                    visited.add(map.get(temp.data).data);
                 }
-                visited.put(temp.data, Boolean.TRUE);
             }
             burnTime++;
         }
@@ -599,25 +606,27 @@ public class Tree {
         Queue<TreeNode> queue = new ArrayDeque<>();
         queue.add(targtNode);
         int dist = 0;
-        Map<Integer, Boolean> visited = new HashMap<>();
+        Set<Integer> visited = new HashSet<>();
         while (!queue.isEmpty()) {
             int size = queue.size();
             for (int i = 0; i < size; i++) {
                 TreeNode temp = queue.poll();
+                visited.add(temp.data);
 
-                if (temp.left != null && visited.get(temp.left.data) == Boolean.FALSE) {
+                if (temp.left != null && !visited.contains(temp.left.data)) {
                     queue.add(temp.left);
-                    visited.put(temp.left.data, Boolean.TRUE);
+                    visited.add(temp.left.data);
                 }
-                if (temp.right != null && visited.get(temp.right.data) == Boolean.FALSE) {
+
+                if (temp.right != null && !visited.contains(temp.right.data)) {
                     queue.add(temp.right);
-                    visited.put(temp.right.data, Boolean.TRUE);
+                    visited.add(temp.right.data);
                 }
-                if (parentMap.get(temp.data) != null && visited.get(temp.data) == Boolean.FALSE) {
+
+                if (parentMap.get(temp.data) != null && !visited.contains(temp.data)) {
                     queue.add(parentMap.get(temp.data));
-                    visited.put(parentMap.get(temp.data).data, Boolean.TRUE);
+                    visited.add(parentMap.get(temp.data).data);
                 }
-                visited.put(temp.data, Boolean.TRUE);
             }
             dist++;
             if (dist == k) break;
@@ -743,6 +752,8 @@ public class Tree {
         }
 
         if(printRootToNodePath(node.left, n, ans)) return true;
+        ans.remove(ans.size() - 1);
+        ans.add(node.data);
         if(printRootToNodePath(node.right, n, ans)) return true;
         ans.remove(ans.size() - 1);
 
@@ -754,7 +765,7 @@ public class Tree {
         // if(left==null && right!=null) return false
         // if(left!=null && right==null) return false
         //if(left==null && right==null) return true
-        //if(left!null && right!null & left==right) return true
+        //if(left!=null && right!=null && left==right) return true
         if (left == null || right == null) return left == right;
         if (left.data != right.data) return false;
         return isSymmetrical(left.left, right.right)
@@ -830,6 +841,7 @@ public class Tree {
 
     //do inOrder
     private static void addLeaves(TreeNode node, List<Integer> res) {
+        if (node == null) return;
         if (isLeaf(node)) {
             res.add(node.data);
             return;

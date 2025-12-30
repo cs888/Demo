@@ -11,15 +11,28 @@ public class MyTest {
         //J3 -> []
         //J4 -> [J5]
         //J5 -> []
+        String s[]={"bxc","ab","p"};
+        Arrays.sort(s,Comparator.comparingInt(a->a.length()));
+        System.out.printf(Arrays.toString(s));
+
+        int a[]={3,5,9,11,23,56,78};
+        System.out.print(lb(a,10));
+
+        String[] split = "s,b,c,".split(",");
+        System.out.printf(Arrays.toString(split));
+
+        System.out.println(null ==null);
         List<List<Integer>> graphNodes = new ArrayList<>();
 
         for (int i = 0; i <5 ; i++) {
             graphNodes.add(i,new ArrayList<>());
         }
-
         graphNodes.get(0).addAll(Arrays.asList(1));
         graphNodes.get(1).addAll(List.of(2,3));
         graphNodes.get(3).addAll(List.of(4));
+
+
+        graphNodes.add(0,Arrays.asList(1,2,3));
 
         List<Integer> list=new ArrayList<>(Collections.nCopies(10,-1));
         //list.add(2,10);
@@ -27,6 +40,20 @@ public class MyTest {
 
         System.out.println(printJobOrder(graphNodes,5));
 
+    }
+
+
+    private static int lb(int[] a, int target) {
+
+        int lo=0,hi=a.length-1 , ans=-1;
+        //smallest index such that a[i]>=target
+        while (lo<=hi){
+            int mid=lo+hi >>1;
+            if(a[mid]==target) return mid;
+            if(a[mid]>=target){ans=mid;hi=mid-1; }
+            else lo=mid+1;
+        }
+        return lo;
     }
 
     private static List<Integer> printJobOrder(List<List<Integer>> graphNodes , int totalNumberOfNodes) {

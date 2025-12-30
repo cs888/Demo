@@ -277,7 +277,7 @@ public class DP {
             } else if (a[ind] == '^') {
                 if (requireTrue) ways += lt * rf + lf * rt;
                 else ways += lt * rt + lf * rf;
-            } else {
+            } else { // OR operand
                 if (requireTrue) ways += lt * rt + lt * rf + lf * rt;
                 else ways += lf * rf;
             }
@@ -362,7 +362,7 @@ public class DP {
     }
 
     // DP-50
-    //sort cuts array
+    //sort cuts array so that we can solve each cuts independently
     //  Arrays.sort(cuts);
     //add[0]=0
     //add[cut.length-1]=length of stick
@@ -424,7 +424,7 @@ public class DP {
     private static int mm(int i, int j, int[] a) {
         if (i == j) return 0;
         int mini = Integer.MAX_VALUE;
-        //till <=j-1 because we are taking k+1 further
+        //till <=j-1 because j & j-1 is last and single base index
         for (int k = i; k <= j - 1; k++) {
             int min = a[i - 1] * a[j] * a[k]+ mm(i, k, a) + mm(k + 1, j, a);
             mini = Math.min(mini, min);
@@ -531,7 +531,7 @@ public class DP {
                 start2++;
             } else start1++;
         }
-        return start1 == start2;
+        return start1 == a[i].length() && start2 == a[prev].length();
     }
 
     //dp-44
@@ -583,6 +583,7 @@ public class DP {
 
         int dp[] = new int[a.length];
         int parent[] = new int[a.length];
+        // assign itself as parent
         for (int i = 0; i < a.length; i++) {
             parent[i] = i;
         }
@@ -645,6 +646,7 @@ public class DP {
     }
 
     //video - 41
+    // give me length of lis till index i when last index is prevIndex
     private static int lis(int i, int prevIndex, int[] a) {
         if (i >= a.length) return 0;
         int take = 0;
@@ -723,8 +725,6 @@ public class DP {
                 } else
                     prev[tn] = Math.max(a[i] + prev[tn + 1], prev[tn]);
             }
-            ;
-
         }
         return prev[0];
     }
@@ -1059,11 +1059,11 @@ public class DP {
         int n = s.length - 1;
         int m = t.length - 1;
         int ans = 0;
-        for (int i1 = 1; i1 < n; i1++) {
-            for (int i2 = 1; i2 < m; i2++) {
-                if (s[i1 - 1] == t[i2 - 1])
-                    dp[i1][i2] = 1 + dp[i1 - 1][i2 - 1];
-                ans = Math.max(ans, dp[i1][i2]);
+        for (int i = 1; i < n; i++) {
+            for (int j = 1; j < m; j++) {
+                if (s[i - 1] == t[j - 1])
+                    dp[i][j] = 1 + dp[i - 1][j - 1];
+                ans = Math.max(ans, dp[i][j]);
             }
         }
         return ans;
@@ -1236,6 +1236,7 @@ public class DP {
     }
 
     //DP -13
+    //unbounded snapsack
     private static int bKnap(int i, int W, int[] wt, int[] val) {
         if (i < 0) return 0;
         int take = 0;
@@ -1351,6 +1352,7 @@ public class DP {
 
     //dp - 20
     //TODO: ISSUE
+    //infinte supply
     private int coinz(int i, int[] coins, int sum) {
         if (sum == 0) return 0;
         if (i >= coins.length) {
@@ -1419,7 +1421,7 @@ public class DP {
         int totSum = Arrays.stream(a).sum();
         int target = (totSum - d) / 2;
         int[][] dp = new int[a.length][target + 1];
-        // if(target%2!=0 ||target<0) return 0;
+        if(totSum - d < 0 ||(totSum - d)%2!=0) return 0;
         return subsetCounts(a.length - 1, a, target, dp);
     }
 
@@ -1458,7 +1460,10 @@ public class DP {
 
     //dp - 17
     private static int subsetCounts(int i, int[] a, int target) {
-        if (target == 0) return 1;
+     /*   if(i==0) { if (target ==0 && a[0]==0 return 2;
+                      if(target==0 || target==a[0]) return 1;
+                      return 0;
+*/        if (target == 0) return 1;
         if (i < 0) return 0;
 
         int take = 0;
@@ -1605,6 +1610,7 @@ public class DP {
 
 
     //another way using manual loop
+    // fix this
     //TODO::doubt not working
     private static int cherry2(int i, int j1, int j2, int[][] g) {
         if (j1 < 0 || j2 < 0 || j1 >= g[0].length || j2 >= g[0].length || i >= g.length) return 0;
@@ -1732,7 +1738,6 @@ public class DP {
         return Math.min(downPath, diagPath);
 
     }
-
     private static int minPathSumBottomUP(int[][] g) {
         int prev[] = new int[g.length];
         int cur[] = new int[g.length];
@@ -1773,6 +1778,17 @@ public class DP {
         return Math.min(up, left);
     }
 
+    //path with obstackles
+    // DP-9
+    private static int pathWithObtacle(int i, int j, int[][] a) {
+        if (i == 0 && j == 0) return 1;
+        if (i < 0 || j < 0) return 0;
+        if(a[i][j]==-1) return 0;
+        int up = upath(i - 1, j, a);
+        int left = upath(i, j - 1, a);
+        return up + left;
+
+    }
     private static int upathBottomUpOptimized(int[][] a) {
         int m = a.length;
         int n = a[0].length;
@@ -1956,6 +1972,7 @@ public class DP {
     }
 
     //video - 5
+    //cannot take adjacen element
     private static int nonAdj(int i, int[] a) {
         if (i < 0) return 0;
         int take = a[i] + nonAdj(i - 2, a);
@@ -2021,8 +2038,8 @@ public class DP {
         if (i > 1) right = frog(i - 2, a) + Math.abs(a[i] - a[i - 2]);
         return Math.min(left, right);
     }
-
     //dp -2
+    //fn description -number of ways to from n to ith index
     public int climbStairs(int n) {
         if (n == 0) return 1;
         if (n < 0) return 0;
@@ -2051,10 +2068,8 @@ public class DP {
 
     //video-1 using recursion
     public static int fib(int n) {
-
         if (n <= 1) return n;
         return fib(n - 1) + fib(n - 2);
-
     }
 
 }

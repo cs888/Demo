@@ -143,7 +143,7 @@ public class Array {
         while (rStart <= r)
             temp[ind++] = arr[rStart++];
 
-        //overrite index with temp array
+        //override index with temp array
         for (int i = l, j = 0; i <= r; i++) {
             arr[i] = temp[j++];
         }
@@ -177,10 +177,10 @@ public class Array {
 
     //AP-25
     public static int[] findMissingRepeatingNumbers(int[] a) {
-        int n = a.length, xor = 0;
+        int n = a.length, x_zor_y = 0;
         for (int i = 0; i < n; i++) {
-            xor ^= a[i];
-            xor ^= i + 1;
+            x_zor_y ^= a[i];
+            x_zor_y ^= i + 1;
         }
         //get first nonZero bit of xor
 
@@ -188,17 +188,19 @@ public class Array {
         /*while(true){
             if((xor &(1<<bitNo))!=0) { break; }
             else bitNo++;
+
+            // use with this - (1<<bitNo)) !=0
         }*/
-        bitNo = xor & ~(xor - 1);
+        bitNo = x_zor_y & ~(x_zor_y - 1);
         int xrZeroGroup = 0, xrOneGroup = 0;
         for (int i = 0; i < n; i++) {
-            if ((a[i] & bitNo) == 1) xrOneGroup ^= a[i];
+            if ((a[i] & bitNo) !=0) xrOneGroup ^= a[i];
             else xrZeroGroup ^= a[i];
         }
 
         //do for number 1 to <=n
         for (int i = 1; i <= n; i++) {
-            if ((i & bitNo) != 0) xrOneGroup ^= i;
+            if ((i & bitNo) !=0) xrOneGroup ^= i;
             else xrZeroGroup ^= i;
         }
         int count = 0;
@@ -217,8 +219,7 @@ public class Array {
         long x_minus_y = s - sn;
         long s2 = Arrays.stream(a).map(x -> x * x).sum();
         long s2n = (n * (n + 1) * (2 * n + 1)) / 6;
-        long xsquare_mius_ysquare = s2 - s2n;
-        long x_plus_y = xsquare_mius_ysquare / x_minus_y;
+        long x_plus_y = s2 - s2n / x_minus_y;
         long x = (int) ((x_plus_y + x_minus_y) / 2);
         long y = (int) x_plus_y - x;
         return new int[]{(int) x, (int) y};
@@ -249,7 +250,7 @@ public class Array {
         int gap = (int) Math.ceil(len / 2);
         while (gap > 0) {
             int i = 0, j = i + gap;
-            while (j < n + m) {
+            while (j < len) {
                 if (j < n) {
                     // both lies in first array
                     if (a[i] > a[j]) {
@@ -286,6 +287,7 @@ public class Array {
         List<List<Integer>> ans = new ArrayList<>();
 
         for (int i = 0; i < a.length; i++) {
+            // will not merge
             if (ans.isEmpty() || ans.get(ans.size() - 1).get(1) < a[i][0]) {
                 ans.add(new ArrayList<>(List.of(a[i][0], a[i][1])));
             } else {
@@ -297,6 +299,7 @@ public class Array {
 
     //AP -22
     // count of previous (zorTillNow ^ k) from map
+    // is there a subarray ending at index i and having zor as k
     public static int subarraysWithSumK(int[] arr, int k) {
         //previousSum,Count
         Map<Integer, Integer> map = new HashMap<>();
@@ -433,6 +436,27 @@ public class Array {
         return ans;
     }
 
+    //video-18
+    void majorityElemenet2(int a[]){
+        int gp1=Integer.MAX_VALUE , gp1count=0;
+        int gp2=gp1-1 , gp2count=0;
+        for (int i = 0; i <a.length ; i++) {
+            if(gp1count==0 && a[i]!=gp2){
+                gp1count=1;
+                gp1=a[i];
+            }
+            else if(gp2count==0 && a[i]!=gp1){
+                gp2count=1;
+                gp2=a[i];
+            }
+            else if(a[i]==gp1) gp1count++;
+            else if(a[i]==gp2) gp2count++;
+            else {
+                gp1count--;
+                gp2count--;
+            }
+        }
+    }
     //AP-18
     public static List<List<Integer>> pascalTrianglePrint(int totalRow) {
         List<List<Integer>> ans = new ArrayList<>();
@@ -454,6 +478,7 @@ public class Array {
         return temp;
     }
 
+    // 10C3 = (10*9*8)/(3*2*1)
     public static int pascalTriangleForSingleElement(int N, int r) {
         int ans = 1;
         //replicaation of n-1!^C,r-1!
@@ -473,7 +498,7 @@ public class Array {
         map.put(0, 1);
         for (int i = 0; i < a.length; i++) {
             prefixSum += a[i];
-            map.put(prefixSum, map.getOrDefault(prefixSum, 0) + 1);
+         //   map.put(prefixSum, map.getOrDefault(prefixSum, 0) + 1);
             map.merge(prefixSum,1,Integer::sum);
 
             count += map.getOrDefault(prefixSum - sum, 0);
@@ -567,6 +592,23 @@ public class Array {
         return matrix;
     }
 
+    //longest consecutive sequcne
+     static int longestConsecutiveSequence(int a[]){
+        Set<Integer> set=new HashSet<>();
+        Arrays.stream(a).forEach(x->set.add(x));
+        int maxLen=0;
+         for (int i = 0; i <a.length ; i++) {
+             if(!set.contains(a[i]-1)){
+                 int len=0;
+                 int element = a[i];
+                 while (set.contains(element)){
+                 len++;element++;
+                  }
+                 maxLen=Math.max(maxLen,len);
+             }
+         }
+         return maxLen;
+     }
     //AP- 12
     public static List<Integer> superiorElements(int[] a) {
         List<Integer> ans = new ArrayList<>();
@@ -616,20 +658,35 @@ public class Array {
 
     }
 
-    //AP-10 part 1
-    //this is wrong bro
+    //AP-10
     public static int[] alternateNumbers(int[] a) {
-        int pos = 0;
-        int neg = 1;
-        int n = a.length;
-        while (pos < n || neg < n) {
-            if (a[pos] < 0) {
-                swap(pos, neg, a);
+        List<Integer>  pos = new ArrayList<>();
+        List<Integer>  neg = new ArrayList<>();
+
+        for (int i = 0; i < a.length ; i++) {
+            if(a[i]<0) neg.add(a[i]);
+            else pos.add(a[i]);
+        }
+
+        if(pos.size()>neg.size()){
+            for (int i = 0; i < neg.size() ; i++) {
+                a[2*i]=pos.get(i);
+                a[2*i+1]=neg.get(i);
             }
-            pos++;
-            if (a[neg] > 0) {
-                swap(pos, neg, a);
-                neg += 2;
+            //left over
+            for (int i = neg.size(); i < pos.size() ; i++) {
+                a[i]=pos.get(i);
+            }
+        }
+        else {
+
+            for (int i = 0; i < pos.size() ; i++) {
+                a[2*i]=pos.get(i);
+                a[2*i+1]=neg.get(i);
+            }
+            //left over
+            for (int i = pos.size(); i < neg.size() ; i++) {
+                a[i]=neg.get(i);
             }
         }
         return a;
@@ -669,7 +726,8 @@ public class Array {
         }
     }
 
-    //  for only postive & zeros in array
+    //  for only postive & zeros in array because having negative will break sliding window rule
+    // which is in expanding sum should increase but having negative will decrease sum
     // only for positivies & 0
     private static int maxSubArraySumLenUsing2Pointer(int n, int requiredSum, int[] a) {
         int right=0,left=0,tempSum = 0,len = 0;
@@ -680,7 +738,7 @@ public class Array {
             }
             if (tempSum == requiredSum) {
                 //not right-left+1 because already did right++ in else block after adding to sum
-                len = Math.max(len, right - left);
+                len = Math.max(len, right - left + 1);
                 tempSum -= a[left];
                 left++;
             } else {
@@ -782,18 +840,15 @@ public class Array {
         return ans;
     }
 
-    public static int[] moveZeros(int n, int[] a) {
+    public void moveZeroes(int[] a) {
+
         int zeroIndex = 0;
-        int itr = 0;
-        while (itr < a.length) {
-            if(a[zeroIndex]!=0)  { zeroIndex ++;continue; }
-            if (a[itr] != 0) {
-                swap(zeroIndex, itr, a);
-                itr++;
+        for(int nonZeroIndex=0;nonZeroIndex<a.length;nonZeroIndex++){
+            if(a[nonZeroIndex]!=0){
+                swap(nonZeroIndex,nonZeroIndex,a);
                 zeroIndex++;
-            } else itr++;
+            }
         }
-        return a;
     }
 
     public static void swap(int p1, int p2, int[] a) {
@@ -825,6 +880,7 @@ public class Array {
 
     private static int secondSmallest(int n, int[] a) {
         int  smallest=a[0] , secondSmallest=Integer.MAX_VALUE;
+        // smallest<secondSmallest
         for (int i = 1; i <n ; i++) {
             if(a[i]<smallest){
                 secondSmallest=smallest;
@@ -839,6 +895,7 @@ public class Array {
     //second largest
     private static int secondLargest(int n, int[] a) {
         int slargest=Integer.MIN_VALUE , largest=a[0];
+        //largest>slargest
         for (int i = 1; i <n ; i++) {
             if(a[i]>largest){
                 slargest=largest;

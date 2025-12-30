@@ -5,13 +5,15 @@ import java.util.*;
 public class LL {
     public static void main(String[] args) {
         LLNode n1 = new LLNode(1);
-        n1.next = new LLNode(4);
-        n1.next.next = new LLNode(7);
-        n1.next.next.next = new LLNode(9);
+        n1.next = new LLNode(2);
+        n1.next.next = new LLNode(3);
+        n1.next.next.next = new LLNode(4);
 
 
         LLNode n2 = new LLNode(3);
         n2.next = new LLNode(5);
+        LLNode llNode = reverseKGroup(n1, 3);
+        System.out.println(llNode);
 
     }
 
@@ -27,39 +29,39 @@ public class LL {
     }
 
     public class Browser {
-        BrowserNode head;
+        BrowserNode root;
 
         public Browser(String homePage) {
-            head = new BrowserNode(homePage);
+            root = new BrowserNode(homePage);
         }
 
         public void visit(String str) {
             BrowserNode newBrowserNode = new BrowserNode(str);
-            if (head == null)
-                head = newBrowserNode;
+            if (root == null)
+                root = newBrowserNode;
             else {
-                newBrowserNode.prev = head;
-                head.next = newBrowserNode;
-                head = newBrowserNode;
+                newBrowserNode.prev = root;
+                root.next = newBrowserNode;
+                root = newBrowserNode;
             }
         }
 
         public String back(int val) {
 
-            while (val > 0 && head.prev != null) {
-                head = head.prev;
+            while (val > 0 && root.prev != null) {
+                root = root.prev;
                 val--;
             }
-            return head.page;
+            return root.page;
         }
 
         public String forward(int val) {
 
-            while (val > 0 && head.next != null) {
-                head = head.next;
+            while (val > 0 && root.next != null) {
+                root = root.next;
                 val--;
             }
-            return head.page;
+            return root.page;
         }
     }
 
@@ -202,6 +204,51 @@ public class LL {
         }
     }
 
+
+    public class ListNode {
+        int val;
+        ListNode next;
+
+        ListNode() {}
+
+        ListNode(int val) {
+            this.val = val;
+        }
+
+        ListNode(int val, ListNode next) {
+            this.val = val;
+            this.next = next;
+        }
+    }
+
+    //LL-22
+    public ListNode rotateRight(ListNode head, int k) {
+        if(k==0 || head ==null) return head;
+        int len=0;
+        ListNode lentemp=head;
+        while(lentemp!=null){
+            len++;lentemp=lentemp.next;
+        }
+
+        int r=k%len;
+        if(r==0) return head;
+        int nodeFromStart=len-r;
+        ListNode tempPtr=head;
+        ListNode prev_Head=head;
+
+
+        while(tempPtr.next!=null){
+            nodeFromStart--;
+            if(nodeFromStart==0)prev_Head=tempPtr;
+            tempPtr=tempPtr.next;
+        }
+
+        ListNode ans=prev_Head.next;
+        prev_Head.next=null;
+        return ans;
+
+    }
+
     //LL-22
     public static LLNode rotate(LLNode head, int k) {
 
@@ -216,6 +263,7 @@ public class LL {
         if (k % len == 0)
             return head;
         k = k % len;
+        //point last node next to head
         cur.next = head;
         LLNode root = map.get(len - k);
         if (root != null) {
@@ -226,39 +274,36 @@ public class LL {
     }
 
     //LL-21
-    public static LLNode kReverse(LLNode head, int k) {
-        int count = 0;
-        LLNode cur = head, curHead = head, prev_Tail = head;
-        while (cur != null) {
-            if (count == 0) {
-                curHead = cur;
-                count++;
-                cur = cur.next;
-                // reached at current k+1
-            } else if (count == k - 1) {
-                // 1 2 3
-                LLNode curNextTemp = cur.next;
-                cur.next = null;
-                // reverse
-                LLNode reversed = reversee(curHead);
+    public static LLNode reverseKGroup(LLNode root, int k) {
 
-                if (curHead == head) {
-                    LLNode tempHead = head;
-                    head = reversed;
-                    tempHead.next = curNextTemp;
-                } else {
-                    prev_Tail.next = reversed;
-                    curHead.next = curNextTemp;
-                }
-                count = 0;
-                prev_Tail = curHead;
-                cur = curNextTemp;
-            } else {
-                count++;
-                cur = cur.next;
+        LLNode temp = root ;
+        LLNode dummyNode=new LLNode(-1) ,ans=dummyNode;
+        while (temp != null) {
+            LLNode kthNode=getKthNode(temp,k);
+            if(kthNode ==null){
+                ans.next=temp;
+                break;
             }
+            LLNode kthNodeNext= kthNode.next;
+
+            kthNode.next=null;
+            ans.next=reversee(temp);
+            ans=temp;
+
+            temp = kthNodeNext;
         }
-        return head;
+        return dummyNode.next;
+    }
+
+
+    static LLNode getKthNode(LLNode node,int k){
+        int i=1;
+        LLNode temp=node;
+        while(i<k && temp!=null){
+            i++;
+            temp=temp.next;
+        }
+        return temp;
     }
 
     static LLNode reversee(LLNode head) {
@@ -277,6 +322,22 @@ public class LL {
         head.next.next = head;
         head.next = null;
         return temp;
+    }
+
+    //LL-20
+    public static LLNode removeDuplicateSoretedDLL(LLNode head) {
+
+        LLNode temp = head;
+        while (temp != null && temp.next != null) {
+            LLNode nextNode = head.next;
+            while (nextNode != null && temp.data == nextNode.data) {
+                nextNode = nextNode.next;
+            }
+            temp.next = nextNode;
+            if (nextNode != null) nextNode.prev = temp;
+            temp = temp.next;
+        }
+        return head;
     }
 
     //LL-19
@@ -320,7 +381,7 @@ public class LL {
     }
 
     //LL-17
-    public static LLNode firstNode(LLNode head) {
+    public static LLNode firstNodeInCycle(LLNode head) {
         LLNode slow = head, fast = head;
         while (fast != null && fast.next != null) {
             slow = slow.next;
@@ -357,18 +418,19 @@ public class LL {
         while (fast != null && fast.next != null) {
             slow = slow.next;
             fast = fast.next.next;
-            if (slow == fast) return findLen(slow, fast);
+            if (slow == fast) return findLen(slow);
         }
         return 0;
     }
 
-    private static int findLen(LLNode slow, LLNode fast) {
-        int len = 0;
-        while (slow.next != fast) {
-            slow = slow.next;
+    private static int findLen(LLNode meeting) {
+        int len = 1;
+        LLNode temp=meeting.next;
+        while (temp !=meeting) {
+            temp=temp.next;
             len++;
         }
-        return len + 1;
+        return len ;
     }
 
     //LL-14
@@ -436,7 +498,7 @@ public class LL {
             fast = fast.next.next;
         }
 
-        LLNode newHead = rev(slow);
+        LLNode newHead = revSingleList(slow);
         slow = head;
         while (newHead != null) {
             if (slow.data != newHead.data)
@@ -447,11 +509,95 @@ public class LL {
         return true;
     }
 
+    // first move fast ko Kth Step
+    // then keep slow and fast moving together
+    public static LLNode removeKthFromEndUsingSlowFast(LLNode head , int k) {
+
+        LLNode fast=head;
+        while ( k>0) {
+            k--;
+            if(fast==null) return head.next;
+            fast=fast.next;
+        }
+
+        // for exactly case k== length of list
+        if(fast==null) return head.next;
+
+        LLNode slow=head;
+        while (fast.next!=null) {
+            fast=fast.next;
+            slow=slow.next;
+        }
+        slow.next=slow.next.next;
+        return head;
+
+    }
+
+    //video -9
+    public static LLNode removeKthFromEnd(LLNode head , int k) {
+
+        int len=0;
+        LLNode temp=head;
+        while (temp!=null) {
+            len++;
+            temp=temp.next;
+        }
+       int fromStart=len-k;
+
+        temp=head;
+
+        while (temp!=null) {
+            fromStart--;
+            if(fromStart==0) {
+                temp.next=temp.next.next;
+                break;
+            }
+            temp=temp.next;
+        }
+        return head;
+
+    }
+
+
+
+    // video - 7
+    public static LLNode sort_0_1_2_List(LLNode head) {
+
+        LLNode zeroHead=new LLNode(-1);
+        LLNode oneHead=new LLNode(-1);
+        LLNode twoHead=new LLNode(-1);
+
+        LLNode zero=zeroHead,one=oneHead,two=twoHead;
+        LLNode temp=head;
+        while (temp!=null){
+            if(temp.data==0){
+                zero.next=temp;
+                zero=zero.next;
+            }
+
+           else if(temp.data==1){
+                one.next=temp;
+                one=one.next;
+            }
+           else {
+                two.next=temp;
+                two=two.next;
+            }
+
+            temp=temp.next;
+        }
+
+        zero.next=oneHead.next!=null?oneHead.next:twoHead.next;
+        one.next=twoHead.next;
+        two.next=null;
+        return zeroHead.next;
+
+    }
     //LL- 6
     public static LLNode oddEvenList(LLNode head) {
         LLNode odd = head;
         LLNode even = head.next;
-        LLNode even_head = head.next;
+        LLNode even_head = even;
 
         while (even != null && even.next != null) {
             odd.next = odd.next.next;
@@ -463,6 +609,27 @@ public class LL {
         odd.next = even_head;
         return head;
 
+    }
+
+    //LL - video-5
+    public ListNode addTwoNumbers(ListNode head1, ListNode head2) {
+        ListNode dummyNode=new ListNode(-1) , ans=dummyNode;
+        int carry=0;
+        while(head1!=null || head2!=null){
+            int val=0;
+            if(head1!=null){val+=head1.val;head1=head1.next;}
+            if(head2!=null){val+=head2.val;head2=head2.next;}
+            val+=carry;
+            carry=val/10;
+            val%=10;
+
+            ans.next=new ListNode(val);
+            ans=ans.next;
+        }
+        if(carry>0){
+            ans.next=new ListNode(carry);
+        }
+        return dummyNode.next;
     }
 
     private static LLNode merge(LLNode n1, LLNode n2) {
@@ -477,12 +644,29 @@ public class LL {
         }
     }
 
-    static LLNode rev(LLNode head) {
+    static LLNode revDoubleList(LLNode head) {
+
+        LLNode cur=head;
+        LLNode newHead=null;
+        while (cur!=null){
+
+            LLNode temp=cur.next;
+            cur.next=cur.prev;
+            cur.prev=temp;
+
+            newHead=cur;
+            cur=temp;
+        }
+        return newHead;
+    }
+
+    static LLNode revSingleList(LLNode head) {
         if (head == null || head.next == null)
             return head;
-        LLNode newhead = rev(head.next);
+        LLNode newhead = revSingleList(head.next);
         head.next.next = head;
         head.next = null;
+
         return newhead;
     }
 }
@@ -522,11 +706,17 @@ public class LL {
         this.random = random;
     }
 
-    @Override
-    public String toString() {
-        return super.toString();
-    }
-}
+     @Override
+     public String toString() {
+         return "LLNode{" +
+                 "data=" + data +
+                 ", next=" + next +
+                 ", prev=" + prev +
+                 ", child=" + child +
+                 ", random=" + random +
+                 '}';
+     }
+ }
 
 class LinkedListNode<Integer> {
     int data;
